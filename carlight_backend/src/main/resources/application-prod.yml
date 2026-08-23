@@ -38,7 +38,7 @@ app:
     allowed-origins:
       - "http://localhost:3000"
       - "http://localhost:3001"
-      - "${FRONTEND_PROD_URL:https://your-app.vercel.app}"
+      - "${FRONTEND_PROD_URL:https://carlight-ai.vercel.app}"
     allowed-methods:
       - GET
       - POST
