@@ -89,8 +89,8 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     @Query("""
         SELECT COALESCE(SUM(b.totalAmount), 0)
         FROM Bill b
-        WHERE function('year', b.createdAt) = :year
-          AND function('month', b.createdAt) = :month
+        WHERE year(b.createdAt) = :year
+          AND month(b.createdAt) = :month
           AND (:outletId IS NULL OR b.outlet.id = :outletId)
     """)
     Double monthlyTotalBill(
@@ -103,7 +103,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     @Query("""
         SELECT COALESCE(SUM(b.totalAmount), 0)
         FROM Bill b
-        WHERE function('year', b.createdAt) = :year
+        WHERE year(b.createdAt) = :year
           AND (:outletId IS NULL OR b.outlet.id = :outletId)
     """)
     Double yearlyTotalBill(
@@ -118,8 +118,8 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     @Query("""
         SELECT COUNT(b.id)
         FROM Bill b
-        WHERE function('year', b.createdAt) = :year
-          AND function('month', b.createdAt) = :month
+        WHERE year(b.createdAt) = :year
+          AND month(b.createdAt) = :month
           AND (:outletId IS NULL OR b.outlet.id = :outletId)
     """)
     Long monthlyCarsServiced(
@@ -131,7 +131,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     @Query("""
         SELECT COUNT(b.id)
         FROM Bill b
-        WHERE function('year', b.createdAt) = :year
+        WHERE year(b.createdAt) = :year
           AND (:outletId IS NULL OR b.outlet.id = :outletId)
     """)
     Long yearlyCarsServiced(

@@ -26,8 +26,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         SUM(e.amount)
     )
     FROM Expense e
-    WHERE function('year', e.createdAt) = :year
-      AND function('month', e.createdAt) = :month
+    WHERE year(e.createdAt) = :year
+      AND month(e.createdAt) = :month
       AND (:outletId IS NULL OR e.outlet.id = :outletId)
     GROUP BY e.category
 """)
@@ -44,7 +44,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
         SUM(e.amount)
     )
     FROM Expense e
-    WHERE function('year', e.createdAt) = :year
+    WHERE year(e.createdAt) = :year
       AND (:outletId IS NULL OR e.outlet.id = :outletId)
     GROUP BY e.category
 """)
