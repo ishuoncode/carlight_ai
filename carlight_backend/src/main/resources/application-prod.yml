@@ -1,0 +1,50 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    # ✅ Neon PostgreSQL (production database)
+    # Secrets live in .env (never committed) — values below are fallbacks only.
+    url: jdbc:postgresql://${DB_HOST:ep-lingering-dawn-azgnq8nw-pooler.c-3.ap-southeast-1.aws.neon.tech}:${DB_PORT:5432}/${DB_NAME:neondb}?sslmode=require&prepareThreshold=0
+    username: ${DB_USER:neondb_owner}
+    password: ${DB_PASSWORD:npg_24efrIZmnKih}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5          # keep small — serverless Postgres limits connections
+      minimum-idle: 1
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: update              # creates/updates tables automatically
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:THIS_IS_MY_SUPER_SECRET_KEY_ChangeIt1234567890}
+    expiration-ms: 86400000
+  admin:
+    name: Super Admin
+    phone: ${ADMIN_PHONE:9999999999}
+    password: ${ADMIN_PASSWORD:admin123}
+  cors:
+    allowed-origins:
+      - "http://localhost:3000"
+      - "http://localhost:3001"
+      - "${FRONTEND_PROD_URL:https://your-app.vercel.app}"
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    allowed-headers:
+      - "*"
