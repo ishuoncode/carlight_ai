@@ -101,6 +101,16 @@ const CarOwner = () => {
     return rowData.customerPhone ? `+91 ${rowData.customerPhone}` : 'N/A';
   };
 
+  // Owner cell: phone stacks under the name on small screens (phone column is hidden there)
+  const ownerBodyTemplate = (rowData) => (
+    <div>
+      <span className="font-medium text-gray-800">{rowData.customerName || 'N/A'}</span>
+      {rowData.customerPhone && (
+        <span className="block md:hidden text-xs text-gray-500">+91 {rowData.customerPhone}</span>
+      )}
+    </div>
+  );
+
   // Open update modal
   const openUpdateModal = (car) => {
     setSelectedCar(car);
@@ -267,27 +277,27 @@ const CarOwner = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-4 lg:p-6">
       <Toast ref={toast} />
 
-      <div className="bg-white shadow-sm rounded-lg p-6">
+      <div className="bg-white shadow-sm rounded-lg p-3 sm:p-5 lg:p-6">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+              <h2 className="text-xl sm:text-3xl font-bold text-gray-800 flex items-center gap-3">
                 <i className="pi pi-car text-blue-600"></i>
                 Car & Owner Details
               </h2>
               <p className="text-gray-600 mt-2">View all registered vehicles and their owners</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
               <Button
                 icon="pi pi-file-excel"
                 label="Export"
                 onClick={exportToExcel}
                 disabled={filteredCars.length === 0}
-                className="bg-green-600 hover:bg-green-700 border-0 text-white px-6 py-3"
+                className="bg-green-600 hover:bg-green-700 border-0 text-white px-4 sm:px-6 py-2 sm:py-3"
                 tooltip="Export to Excel"
               />
               <Button
@@ -295,7 +305,7 @@ const CarOwner = () => {
                 label="Refresh"
                 onClick={fetchCars}
                 loading={loading}
-                className="bg-blue-600 hover:bg-blue-700 border-0 text-white px-6 py-3"
+                className="bg-blue-600 hover:bg-blue-700 border-0 text-white px-4 sm:px-6 py-2 sm:py-3"
               />
             </div>
           </div>
@@ -317,8 +327,8 @@ const CarOwner = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Cars</p>
@@ -328,7 +338,7 @@ const CarOwner = () => {
             </div>
           </div>
 
-          <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+          <div className="bg-green-50 rounded-lg p-3 sm:p-4 border-l-4 border-green-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Unique Owners</p>
@@ -340,7 +350,7 @@ const CarOwner = () => {
             </div>
           </div>
 
-          <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+          <div className="bg-purple-50 rounded-lg p-3 sm:p-4 border-l-4 border-purple-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Filtered Results</p>
@@ -350,7 +360,7 @@ const CarOwner = () => {
             </div>
           </div>
 
-          <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
+          <div className="bg-orange-50 rounded-lg p-3 sm:p-4 border-l-4 border-orange-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Car Types</p>
@@ -376,11 +386,14 @@ const CarOwner = () => {
             showGridlines
             sortField="carNo"
             sortOrder={1}
+            size="small"
           >
             <Column 
               field="id" 
               header="Car ID" 
               sortable 
+              headerClassName="hidden md:table-cell"
+              bodyClassName="hidden md:table-cell"
               style={{ width: '8%' }}
             />
             <Column 
@@ -394,18 +407,23 @@ const CarOwner = () => {
               header="Car Type" 
               sortable 
               body={carTypeBodyTemplate}
+              headerClassName="hidden sm:table-cell"
+              bodyClassName="hidden sm:table-cell"
               style={{ width: '11%' }}
             />
             <Column 
               field="model" 
               header="Model" 
               sortable 
+              headerClassName="hidden md:table-cell"
+              bodyClassName="hidden md:table-cell"
               style={{ width: '14%' }}
             />
             <Column 
               field="customerName" 
               header="Owner Name" 
               sortable 
+              body={ownerBodyTemplate}
               style={{ width: '16%' }}
             />
             <Column 
@@ -413,12 +431,16 @@ const CarOwner = () => {
               header="Phone Number" 
               sortable
               body={phoneBodyTemplate}
+              headerClassName="hidden md:table-cell"
+              bodyClassName="hidden md:table-cell"
               style={{ width: '14%' }}
             />
             <Column 
               field="customerId" 
               header="Customer ID" 
               sortable 
+              headerClassName="hidden lg:table-cell"
+              bodyClassName="hidden lg:table-cell"
               style={{ width: '10%' }}
             />
             <Column 
@@ -446,16 +468,16 @@ const CarOwner = () => {
         modal
         header={
           <div className="flex items-center gap-3 pb-3 border-b">
-            <div className="bg-blue-100 p-3 rounded-full">
+            <div className="bg-blue-100 p-2 sm:p-3 rounded-full">
               <i className="pi pi-pencil text-2xl text-blue-600"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">Update Car Details</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Update Car Details</h3>
               <p className="text-sm text-gray-500">Update vehicle and owner information</p>
             </div>
           </div>
         }
-        style={{ width: '550px' }}
+        style={{ width: 'min(550px, 92vw)' }}
         className="update-car-dialog"
       >
         <div className="pt-4 space-y-4">
@@ -531,7 +553,7 @@ const CarOwner = () => {
           </div>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 flex items-start gap-3">
+          <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-3 sm:p-4 flex items-start gap-3">
             <i className="pi pi-info-circle text-blue-600 text-lg mt-0.5"></i>
             <div className="text-sm">
               <p className="font-semibold text-blue-800 mb-1">Update Information</p>
@@ -540,7 +562,7 @@ const CarOwner = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4 border-t">
             <Button
               label="Cancel"
               icon="pi pi-times"
@@ -554,7 +576,7 @@ const CarOwner = () => {
                   carModel: ''
                 });
               }}
-              className="px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50"
               outlined
               disabled={updating}
             />
@@ -563,7 +585,7 @@ const CarOwner = () => {
               icon="pi pi-check"
               onClick={handleUpdateCar}
               loading={updating}
-              className="bg-blue-600 hover:bg-blue-700 border-0 text-white px-6 py-2"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 border-0 text-white px-4 sm:px-6 py-2"
             />
           </div>
         </div>

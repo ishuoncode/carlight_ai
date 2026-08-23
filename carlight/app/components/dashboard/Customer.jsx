@@ -346,15 +346,15 @@ const Customer = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-4 lg:p-6">
       <Toast ref={toast} />
       
-      <div className="bg-white shadow-sm rounded-lg p-6">
+      <div className="bg-white shadow-sm rounded-lg p-3 sm:p-5 lg:p-6">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+              <h2 className="text-xl sm:text-3xl font-bold text-gray-800 flex items-center gap-3">
                 <i className="pi pi-history text-blue-600"></i>
                 Bill History
               </h2>
@@ -463,11 +463,16 @@ const Customer = () => {
             emptyMessage="No bills found"
             stripedRows
             showGridlines
+            size="small"
           >
           <Column field="carNo"  header="Car No" sortable style={{ width: '10rem' }} />
-            <Column field="carType"  header="Car Type" sortable style={{ width: '10rem' }} />
+            <Column field="carType"  header="Car Type" sortable headerClassName="hidden sm:table-cell"
+            bodyClassName="hidden sm:table-cell"
+            style={{ width: '10rem' }} />
           <Column field="customerName" header="Customer Name" sortable style={{ width: '12rem' }} />
-          <Column field="phoneNumber" header="Phone Number" sortable style={{ width: '11rem' }} />
+          <Column field="phoneNumber" header="Phone Number" sortable headerClassName="hidden lg:table-cell"
+            bodyClassName="hidden lg:table-cell"
+            style={{ width: '11rem' }} />
           <Column 
             field="createdAt" 
             header="Created At" 
@@ -475,7 +480,9 @@ const Customer = () => {
             body={(rowData) => formatDate(rowData.createdAt)} 
             style={{ width: '14rem' }} 
           />
-          <Column field="outletName" header="Outlet Name" sortable style={{ width: '12rem' }} />
+          <Column field="outletName" header="Outlet Name" sortable headerClassName="hidden md:table-cell"
+            bodyClassName="hidden md:table-cell"
+            style={{ width: '12rem' }} />
           <Column 
             field="totalAmmount" 
             header="Total Amount" 
@@ -503,12 +510,12 @@ const Customer = () => {
       <Dialog
         header="Bill Details"
         visible={viewDialogVisible}
-        style={{ width: '60vw' }}
+        style={{ width: 'min(720px, 92vw)' }}
         onHide={() => setViewDialogVisible(false)}
         modal
       >
         {selectedBill && (
-          <div className="p-4">
+          <div className="p-2 sm:p-4">
             {/* Basic Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>

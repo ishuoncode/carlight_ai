@@ -650,33 +650,33 @@ const CouponManagement = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-4 lg:p-6">
       <Toast ref={toast} />
 
-      <div className="bg-white shadow-sm rounded-lg p-6">
+      <div className="bg-white shadow-sm rounded-lg p-3 sm:p-5 lg:p-6">
         {/* Header */}
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <h2 className="text-xl sm:text-3xl font-bold text-gray-800 flex items-center gap-3">
               <i className="pi pi-ticket text-blue-600"></i>
               Coupon Management
             </h2>
             <p className="text-gray-600 mt-2">Create and manage discount coupons</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
             <Button
               icon="pi pi-file-excel"
               label="Export"
               onClick={exportToExcel}
               disabled={coupons.length === 0}
-              className="bg-green-600 hover:bg-green-700 border-0 text-white px-4 py-3 text-sm"
+              className="bg-green-600 hover:bg-green-700 border-0 text-white px-3 py-2 text-sm sm:px-4 sm:py-3"
               tooltip="Export all coupons to Excel"
               tooltipOptions={{ position: 'bottom' }}
             />
             <Button
               icon="pi pi-refresh"
               onClick={fetchCoupons}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-3"
+              className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-2 sm:px-4 sm:py-3"
               tooltip="Refresh data"
               tooltipOptions={{ position: 'bottom' }}
               outlined
@@ -685,7 +685,7 @@ const CouponManagement = () => {
               label="Create Coupon"
               icon="pi pi-plus"
               onClick={() => setAddDialogVisible(true)}
-              className="bg-blue-600 hover:bg-blue-700 border-0 text-white px-6 py-3"
+              className="bg-blue-600 hover:bg-blue-700 border-0 text-white px-4 sm:px-6 py-2 sm:py-3 flex-1 sm:flex-none"
             />
           </div>
         </div>
@@ -716,6 +716,7 @@ const CouponManagement = () => {
             showGridlines
             sortField="createdAt"
             sortOrder={-1}
+            size="small"
           >
             <Column field="code" header="Coupon Code" sortable style={{ width: '12rem' }} 
               body={(rowData) => {
@@ -730,7 +731,7 @@ const CouponManagement = () => {
               }} 
             />
             <Column field="discountType" header="Discount" sortable body={discountBodyTemplate} style={{ width: '9rem' }} />
-            <Column header="Scope" body={scopeBodyTemplate} style={{ width: '17rem' }} />
+            <Column header="Scope" body={scopeBodyTemplate} headerClassName="hidden md:table-cell" bodyClassName="hidden md:table-cell" style={{ width: '17rem' }} />
             <Column header="Usage" sortable sortField="usedCount" style={{ width: '10rem' }}
               body={(rowData) => (
                 <span className={`text-sm font-semibold ${(rowData.usedCount || 0) >= (rowData.maxUses || 0) ? 'text-red-600' : 'text-gray-700'}`}>
@@ -738,8 +739,8 @@ const CouponManagement = () => {
                 </span>
               )}
             />
-            <Column field="validTill" header="Valid Till" sortable body={(rowData) => formatDate(rowData.validTill)} style={{ width: '11rem' }} />
-            <Column field="active" header="Status" body={statusBodyTemplate} style={{ width: '8rem' }} />
+            <Column field="validTill" header="Valid Till" sortable body={(rowData) => formatDate(rowData.validTill)} headerClassName="hidden md:table-cell" bodyClassName="hidden md:table-cell" style={{ width: '11rem' }} />
+            <Column field="active" header="Status" body={statusBodyTemplate} headerClassName="hidden sm:table-cell" bodyClassName="hidden sm:table-cell" style={{ width: '8rem' }} />
             <Column
               header="Actions"
               body={(rowData) => {
@@ -794,11 +795,11 @@ const CouponManagement = () => {
         modal
         header={
           <div className="flex items-center gap-4 pb-4">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 rounded-2xl shadow-lg">
-              <i className="pi pi-ticket text-3xl text-white"></i>
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+              <i className="pi pi-ticket text-2xl sm:text-3xl text-white"></i>
             </div>
             <div>
-              <h3 className="text-3xl font-bold text-gray-800">Create New Coupon</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Create New Coupon</h3>
               <p className="text-sm text-gray-500 mt-1">Design and launch your discount campaign</p>
             </div>
           </div>
@@ -839,7 +840,7 @@ const CouponManagement = () => {
               <h4 className="text-lg font-bold text-gray-800">Discount Details</h4>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Discount Type */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -889,7 +890,7 @@ const CouponManagement = () => {
           </div>
 
           {/* Validity & Usage */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Valid Till */}
             <div className="bg-orange-50 p-4 rounded-xl border-2 border-orange-200">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-2">
@@ -1018,7 +1019,7 @@ const CouponManagement = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t-2 border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t-2 border-gray-200">
             <Button
               label="Cancel"
               icon="pi pi-times"
@@ -1026,7 +1027,7 @@ const CouponManagement = () => {
                 setAddDialogVisible(false);
                 resetForm();
               }}
-              className="px-8 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold rounded-lg"
+              className="w-full sm:w-auto px-4 sm:px-8 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold rounded-lg"
               outlined
             />
             <Button
@@ -1035,7 +1036,7 @@ const CouponManagement = () => {
               onClick={handleAddCoupon}
               loading={creatingCoupon}
               disabled={creatingCoupon}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 text-white px-8 py-3 font-semibold rounded-lg shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 text-white w-full sm:w-auto px-4 sm:px-8 py-2.5 sm:py-3 font-semibold rounded-lg shadow-lg"
             />
           </div>
         </div>
@@ -1051,16 +1052,16 @@ const CouponManagement = () => {
         modal
         header={
           <div className="flex items-center gap-3 pb-3 border-b">
-            <div className="bg-red-100 p-3 rounded-full">
+            <div className="bg-red-100 p-2 sm:p-3 rounded-full">
               <i className="pi pi-exclamation-triangle text-2xl text-red-600"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">Delete Coupon</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Delete Coupon</h3>
               <p className="text-sm text-gray-500">This action cannot be undone</p>
             </div>
           </div>
         }
-        style={{ width: '480px' }}
+        style={{ width: 'min(480px, 92vw)' }}
       >
         <div className="pt-4">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
@@ -1068,7 +1069,7 @@ const CouponManagement = () => {
               <i className="pi pi-info-circle text-red-600 text-xl mt-1 mr-3"></i>
               <div>
                 <p className="text-sm font-semibold text-red-800 mb-1">
-                  Delete coupon "{couponToDelete?.code}"?
+                  Delete coupon &quot;{couponToDelete?.code}&quot;?
                 </p>
                 <p className="text-sm text-red-700">
                   Customers will no longer be able to use it. Past bills are not affected.
@@ -1078,14 +1079,14 @@ const CouponManagement = () => {
           </div>
 
           {couponToDelete && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 border border-gray-200 space-y-2">
               <div className="flex justify-between"><span className="text-sm text-gray-600">Discount:</span><span className="text-sm font-semibold">{discountBodyTemplate(couponToDelete)}</span></div>
               <div className="flex justify-between"><span className="text-sm text-gray-600">Used:</span><span className="text-sm font-semibold">{couponToDelete.usedCount || 0} / {(couponToDelete.maxUses || 0) >= 999999 ? '∞' : couponToDelete.maxUses}</span></div>
               <div className="flex justify-between"><span className="text-sm text-gray-600">Valid Till:</span><span className="text-sm font-semibold">{formatDate(couponToDelete.validTill)}</span></div>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4 border-t">
             <Button
               label="Cancel"
               icon="pi pi-times"
@@ -1095,14 +1096,14 @@ const CouponManagement = () => {
                 setDeleteDialogVisible(false);
                 setCouponToDelete(null);
               }}
-              className="px-6 py-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2"
             />
             <Button
               label={deletingCoupon ? 'Deleting...' : 'Delete'}
               loading={deletingCoupon}
               onClick={handleDeleteCoupon}
               severity="danger"
-              className="px-6 py-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2"
             />
           </div>
         </div>
@@ -1118,21 +1119,21 @@ const CouponManagement = () => {
         modal
         header={
           <div className="flex items-center gap-3 pb-3 border-b">
-            <div className="bg-green-100 p-3 rounded-full">
+            <div className="bg-green-100 p-2 sm:p-3 rounded-full">
               <i className="pi pi-refresh text-2xl text-green-600"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">Renew Coupon</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Renew Coupon</h3>
               <p className="text-sm text-gray-500">Give an expired coupon a new life</p>
             </div>
           </div>
         }
-        style={{ width: '460px' }}
+        style={{ width: 'min(460px, 92vw)' }}
       >
-        <div className="pt-4 space-y-5">
+        <div className="pt-3 sm:pt-4 space-y-4 sm:space-y-5">
           {/* Coupon summary */}
           {couponToRenew && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200 space-y-2">
               <div className="flex justify-between"><span className="text-sm text-gray-600">Code:</span><span className="text-sm font-bold text-blue-600">{couponToRenew.code}</span></div>
               <div className="flex justify-between"><span className="text-sm text-gray-600">Discount:</span><span className="text-sm font-semibold">{discountBodyTemplate(couponToRenew)}</span></div>
               <div className="flex justify-between"><span className="text-sm text-gray-600">Expired On:</span><span className="text-sm font-semibold text-red-600">{formatDate(couponToRenew.validTill)}</span></div>
@@ -1207,7 +1208,7 @@ const CouponManagement = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2 border-t">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2 border-t">
             <Button
               label="Cancel"
               icon="pi pi-times"
@@ -1217,7 +1218,7 @@ const CouponManagement = () => {
                 setRenewDialogVisible(false);
                 setCouponToRenew(null);
               }}
-              className="px-6 py-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2"
             />
             <Button
               label={renewingCoupon ? 'Renewing...' : 'Renew Coupon'}
@@ -1240,27 +1241,27 @@ const CouponManagement = () => {
         modal
         header={
           <div className="flex items-center gap-3 pb-3 border-b">
-            <div className="bg-indigo-100 p-3 rounded-full">
+            <div className="bg-indigo-100 p-2 sm:p-3 rounded-full">
               <i className="pi pi-sliders-h text-2xl text-indigo-600"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">Edit Usage</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Edit Usage</h3>
               <p className="text-sm text-gray-500">Change the usage limit or correct the used counter</p>
             </div>
           </div>
         }
-        style={{ width: '440px' }}
+        style={{ width: 'min(440px, 92vw)' }}
       >
-        <div className="pt-4 space-y-5">
+        <div className="pt-3 sm:pt-4 space-y-4 sm:space-y-5">
           {usageCoupon && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-2">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200 space-y-2">
               <div className="flex justify-between"><span className="text-sm text-gray-600">Code:</span><span className="text-sm font-bold text-blue-600">{usageCoupon.code}</span></div>
               <div className="flex justify-between"><span className="text-sm text-gray-600">Current Usage:</span><span className="text-sm font-semibold">{usageCoupon.usedCount || 0} / {(usageCoupon.maxUses || 0) >= 999999 ? '∞' : usageCoupon.maxUses}</span></div>
               <div className="flex justify-between"><span className="text-sm text-gray-600">Status:</span><span className={`text-sm font-semibold ${usageCoupon.active && !isExpired(usageCoupon.validTill) ? 'text-green-600' : 'text-red-600'}`}>{usageCoupon.active && !isExpired(usageCoupon.validTill) ? 'Active' : 'Inactive / Expired'}</span></div>
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Max Uses */}
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
@@ -1305,7 +1306,7 @@ const CouponManagement = () => {
             </p>
           </div>
 
-          <div className="flex justify-end gap-3 pt-2 border-t">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2 border-t">
             <Button
               label="Cancel"
               icon="pi pi-times"
@@ -1315,14 +1316,14 @@ const CouponManagement = () => {
                 setUsageDialogVisible(false);
                 setUsageCoupon(null);
               }}
-              className="px-6 py-2"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2"
             />
             <Button
               label={savingUsage ? 'Saving...' : 'Save Changes'}
               icon="pi pi-check"
               loading={savingUsage}
               onClick={handleSaveUsage}
-              className="bg-indigo-600 hover:bg-indigo-700 border-0 text-white px-6 py-2"
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 border-0 text-white px-4 sm:px-6 py-2"
             />
           </div>
         </div>

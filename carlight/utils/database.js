@@ -18,3 +18,8 @@ export const connectToDB = async () => {
     console.log('MongoDB connection error:', error);
   }
 };
+
+// Default export so both `import connectDB from '@/utils/database'`
+// and `import { connectToDB } from '@/utils/database'` work.
+const connectDB = connectToDB;
+export default connectDB;

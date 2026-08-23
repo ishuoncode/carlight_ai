@@ -64,6 +64,16 @@ body {
   }
 }
 
+/* ---- Bill history card: slim PrimeReact Card body padding on phones ---- */
+@media (max-width: 640px) {
+  .bill-history-card .p-card-body {
+    padding: 0.75rem;
+  }
+  .bill-history-card .p-card-content {
+    padding: 0;
+  }
+}
+
 /* ---- Data tables: horizontal swipe instead of breaking layout ---- */
 .p-datatable-wrapper {
   overflow-x: auto;

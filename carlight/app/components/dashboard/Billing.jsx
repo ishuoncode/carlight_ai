@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
+import { AutoComplete } from 'primereact/autocomplete';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
@@ -25,20 +26,24 @@ const Billing = () => {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [carType, setCarType] = useState(null);
-  const [searchCarNumber, setSearchCarNumber] = useState('');
+  const [carNumberQuery, setCarNumberQuery] = useState('');
   const [carFound, setCarFound] = useState(false);
   const [carData, setCarData] = useState(null);
   const [searching, setSearching] = useState(false);
-  const [newCustomerModalVisible, setNewCustomerModalVisible] = useState(false);
-  const [newCustomerForm, setNewCustomerForm] = useState({ name: '', phoneNumber: '' });
-  const [creatingCustomer, setCreatingCustomer] = useState(false);
-  const [addCarModalVisible, setAddCarModalVisible] = useState(false);
-  const [carForm, setCarForm] = useState({ carNo: '', carType: '', model: '', customerId: null });
-  const [creatingCar, setCreatingCar] = useState(false);
-  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
-  const [customerSearchResults, setCustomerSearchResults] = useState([]);
-  const [searchingCustomer, setSearchingCustomer] = useState(false);
-  const [selectedCustomerData, setSelectedCustomerData] = useState(null);
+
+  // ⚡ Simplified flow: live suggestions + single inline registration panel
+  // (replaces the old "Add Customer" modal -> "Add Car" modal chain)
+  const [allCars, setAllCars] = useState([]);
+  const [carSuggestions, setCarSuggestions] = useState([]);
+  const [quickRegVisible, setQuickRegVisible] = useState(false);
+  const [quickCarNo, setQuickCarNo] = useState('');
+  const [quickPhone, setQuickPhone] = useState('');
+  const [quickPhoneStatus, setQuickPhoneStatus] = useState('idle'); // idle | checking | found | notfound
+  const [quickCustomer, setQuickCustomer] = useState(null);
+  const [quickName, setQuickName] = useState('');
+  const [quickCarType, setQuickCarType] = useState(null);
+  const [quickModel, setQuickModel] = useState('');
+  const [quickSaving, setQuickSaving] = useState(false);
   const [additionalCharges, setAdditionalCharges] = useState([]);
   const [newCharge, setNewCharge] = useState({ title: '', amount: 0 });
   const [carId, setCarId] = useState(null);
@@ -130,6 +135,12 @@ const Billing = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartSignature]);
   
+  // ⚡ Load all vehicles once so the car-number input can show live
+  // suggestions (car no + owner name + phone) while typing.
+  useEffect(() => {
+    fetchAllCars();
+  }, [user]);
+
   const fetchWashPackages = async (outletId = null, carTypeFilter = null) => {
     try {
       const token = localStorage.getItem('token');
@@ -371,380 +382,278 @@ const Billing = () => {
     }
   };
   
-  const searchCarByNumber = async () => {
-    if (!searchCarNumber.trim()) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Please enter a car number',
-        life: 3000
-      });
-      return;
-    }
+  // ⚡ SIMPLIFIED BILLING FLOW
+  // 1) Live suggestions while typing (car no / owner name / phone)
+  // 2) Enter or exact match -> bill loads instantly
+  // 3) New vehicle -> one inline panel: phone-first lookup reuses the existing
+  //    customer (their other car), or creates customer + vehicle in one click.
 
-    setSearching(true);
+  const fetchAllCars = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/cars/search?carNo=${searchCarNumber.toUpperCase()}`, {
+      const response = await fetch(`${API_BASE_URL}/api/cars`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('Search response:', data);
-        
-        // Check if car data exists (not null or empty)
-        if (data && data.id) {
-          // Car found - auto-fill form fields
-          setCarData(data);
-          setCarFound(true);
-          setCarId(data.id);
-          setCustomerId(data.customerId);
-          setVehicleNumber(data.carNo);
-          setCustomerName(data.customerName);
-          setPhoneNumber(data.customerPhone);
-          setCarType(data.carType);
-          
-          toast.current?.show({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Car found! Details auto-filled',
-            life: 3000
-          });
-        } else {
-          // Car not found (200 but empty/null response)
-          console.log('Car not found (empty response)');
-          setCarFound(false);
-          setCarData(null);
-          setCarId(null);
-          setCustomerId(null);
-          setVehicleNumber(searchCarNumber.toUpperCase());
-          
-          // Open modal to create new customer
-          setNewCustomerModalVisible(true);
-          
-          toast.current?.show({
-            severity: 'info',
-            summary: 'Not Found',
-            detail: 'Car not found. Please add customer details',
-            life: 3000
-          });
-        }
-      } else if (response.status === 404 || response.status === 400) {
-        // Car not found (404 or 400 with "not found" message)
-        console.log('Car not found (status:', response.status, ')');
-        setCarFound(false);
-        setCarData(null);
-        setVehicleNumber(searchCarNumber.toUpperCase());
-        
-        // Open modal to create new customer
-        setNewCustomerModalVisible(true);
-        
-        toast.current?.show({
-          severity: 'info',
-          summary: 'Not Found',
-          detail: 'Car not found. Please add customer details',
-          life: 3000
-        });
-      } else {
-        throw new Error('Search failed');
+        setAllCars(Array.isArray(data) ? data : []);
       }
     } catch (error) {
-      console.error('Error searching car:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to search car',
-        life: 3000
+      console.error('Error fetching cars for suggestions:', error);
+    }
+  };
+
+  const applyFoundCar = (data) => {
+    setCarData(data);
+    setCarFound(true);
+    setCarId(data.id);
+    setCustomerId(data.customerId);
+    setVehicleNumber(data.carNo);
+    setCustomerName(data.customerName);
+    setPhoneNumber(data.customerPhone);
+    setCarType(data.carType);
+    setCarNumberQuery('');
+    setCarSuggestions([]);
+    setQuickRegVisible(false);
+
+    toast.current?.show({
+      severity: 'success',
+      summary: `${data.carNo} • ${data.customerName || 'Customer'}`,
+      detail: 'Customer & vehicle loaded. Select a package to continue.',
+      life: 2500
+    });
+  };
+
+  const handleCarSelect = (car) => {
+    if (car && car.id) applyFoundCar(car);
+  };
+
+  const handleCarComplete = (e) => {
+    const q = (e.query || '').trim().toUpperCase();
+    if (!q) {
+      setCarSuggestions([]);
+      return;
+    }
+    setCarSuggestions(
+      allCars
+        .filter(
+          (c) =>
+            c.carNo?.toUpperCase().includes(q) ||
+            c.customerName?.toUpperCase().includes(q) ||
+            c.customerPhone?.includes(q)
+        )
+        .slice(0, 8)
+    );
+  };
+
+  const openQuickRegister = (carNo) => {
+    setQuickCarNo(carNo);
+    setQuickRegVisible(true);
+    setQuickPhone('');
+    setQuickPhoneStatus('idle');
+    setQuickCustomer(null);
+    setQuickName('');
+    setQuickCarType(null);
+    setQuickModel('');
+    setCarSuggestions([]);
+    setCarNumberQuery('');
+
+    toast.current?.show({
+      severity: 'info',
+      summary: 'New Vehicle',
+      detail: `${carNo} is not in the records — enter the customer's phone to continue`,
+      life: 3000
+    });
+  };
+  
+  // Enter pressed on the car input: pick the exact match if it exists,
+  // otherwise open the quick-register panel for this new vehicle.
+  const handleCarInputKey = async (e) => {
+    if (e.key !== 'Enter') return;
+    const typed = carNumberQuery.trim().toUpperCase();
+    if (!typed) return;
+    e.preventDefault();
+
+    // 1) exact match from the loaded list
+    const exact = allCars.find((c) => c.carNo === typed);
+    if (exact) {
+      applyFoundCar(exact);
+      return;
+    }
+
+    // 2) confirm against the server (list could be stale)
+    setSearching(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/cars/search?carNo=${encodeURIComponent(typed)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.id) {
+          setAllCars((prev) => (prev.some((c) => c.id === data.id) ? prev : [...prev, data]));
+          applyFoundCar(data);
+          return;
+        }
+      }
+      // 3) genuinely new vehicle -> quick register panel
+      openQuickRegister(typed);
+    } catch (error) {
+      console.error('Error checking car number:', error);
+      openQuickRegister(typed);
     } finally {
       setSearching(false);
     }
   };
-  
-  const createNewCustomer = async () => {
-    if (!newCustomerForm.name.trim() || !newCustomerForm.phoneNumber.trim()) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Please fill all customer details',
-        life: 3000
-      });
+
+  // Phone-first lookup inside the quick-register panel: if the phone matches
+  // an existing customer we reuse them (this is just their other new car),
+  // otherwise we only ask for the name and create everything in one click.
+  const handleQuickPhoneChange = (value) => {
+    const digits = value.replace(/\D/g, '').slice(0, 10);
+    setQuickPhone(digits);
+    if (digits.length < 10) {
+      setQuickPhoneStatus('idle');
+      setQuickCustomer(null);
       return;
     }
-
-    if (newCustomerForm.phoneNumber.length !== 10) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Phone number must be 10 digits',
-        life: 3000
-      });
-      return;
-    }
-
-    setCreatingCustomer(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/customers`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: newCustomerForm.name,
-          phoneNumber: newCustomerForm.phoneNumber
-        })
-      });
-      
-      if (response.ok) {
-        const customerData = await response.json();
-        console.log('Customer created:', customerData);
-        
-        // Store customer data
-        setSelectedCustomerData({
-          id: customerData.id,
-          name: newCustomerForm.name,
-          phoneNumber: newCustomerForm.phoneNumber
-        });
-        
-        // Auto-fill form fields
-        setCustomerName(newCustomerForm.name);
-        setPhoneNumber(newCustomerForm.phoneNumber);
-        
-        // Close customer modal
-        setNewCustomerModalVisible(false);
-        setNewCustomerForm({ name: '', phoneNumber: '' });
-        
-        // Open add car modal with customer info pre-filled
-        setCarForm({
-          carNo: vehicleNumber,
-          carType: carType || '',
-          model: '',
-          customerId: customerData.id
-        });
-        setCustomerSearchQuery(newCustomerForm.phoneNumber);
-        setAddCarModalVisible(true);
-        
-        toast.current?.show({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Customer created! Now add car details',
-          life: 3000
-        });
-      } else {
-        const error = await response.json();
-        console.log('Customer creation error:', error);
-        
-        // Check if customer already exists
-        if (error.message && (error.message.includes('already exists') || error.message.includes('duplicate') || response.status === 409)) {
-          // Customer already exists, search for them by phone number
-          toast.current?.show({
-            severity: 'info',
-            summary: 'Customer Exists',
-            detail: 'Customer already exists. Proceeding to add car...',
-            life: 3000
-          });
-          
-          // Search for existing customer by phone number
-          try {
-            const searchToken = localStorage.getItem('token');
-            const searchResponse = await fetch(`${API_BASE_URL}/api/customers/search/phone?phoneNumber=${newCustomerForm.phoneNumber}`, {
-              headers: {
-                'Authorization': `Bearer ${searchToken}`,
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            if (searchResponse.ok) {
-              const existingCustomer = await searchResponse.json();
-              
-              // Store customer data
-              setSelectedCustomerData({
-                id: existingCustomer.id,
-                name: existingCustomer.name,
-                phoneNumber: existingCustomer.phoneNumber
-              });
-              
-              // Auto-fill form fields
-              setCustomerName(existingCustomer.name);
-              setPhoneNumber(existingCustomer.phoneNumber);
-              
-              // Close customer modal
-              setNewCustomerModalVisible(false);
-              setNewCustomerForm({ name: '', phoneNumber: '' });
-              
-              // Open add car modal with customer info pre-filled
-              setCarForm({
-                carNo: vehicleNumber,
-                carType: carType || '',
-                model: '',
-                customerId: existingCustomer.id
-              });
-              setCustomerSearchQuery(existingCustomer.phoneNumber);
-              setAddCarModalVisible(true);
-            }
-          } catch (searchError) {
-            console.error('Error finding existing customer:', searchError);
-          }
-        } else {
-          // Other error
-          toast.current?.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.message || 'Failed to create customer',
-            life: 3000
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error creating customer:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to create customer',
-        life: 3000
-      });
-    } finally {
-      setCreatingCustomer(false);
-    }
+    lookupQuickCustomer(digits);
   };
-  
-  const searchCustomers = async (query) => {
-    if (!query || query.trim().length === 0) {
-      setCustomerSearchResults([]);
-      return;
-    }
 
-    setSearchingCustomer(true);
+  const lookupQuickCustomer = async (phone) => {
+    setQuickPhoneStatus('checking');
     try {
       const token = localStorage.getItem('token');
-      // Search by phone number
-      const response = await fetch(`${API_BASE_URL}/api/customers/search/phone?phoneNumber=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${API_BASE_URL}/api/customers/search/phone?phoneNumber=${encodeURIComponent(phone)}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
       if (response.ok) {
         const data = await response.json();
-        console.log('Customer found by phone:', data);
-        
-        // Auto-select the customer
         if (data && data.id) {
-          setCarForm(prev => ({ ...prev, customerId: data.id }));
-          setSelectedCustomerData(data);
-          setCustomerSearchResults([]);
-          
-          toast.current?.show({
-            severity: 'success',
-            summary: 'Customer Found',
-            detail: `${data.name} selected`,
-            life: 2000
-          });
+          setQuickCustomer(data);
+          setQuickPhoneStatus('found');
+          return;
         }
-      } else if (response.status === 404 || response.status === 400) {
-        console.log('Customer not found by phone');
-        setCustomerSearchResults([]);
-        setSelectedCustomerData(null);
-        setCarForm(prev => ({ ...prev, customerId: null }));
-        
-        toast.current?.show({
-          severity: 'info',
-          summary: 'Not Found',
-          detail: 'No customer found with this phone number',
-          life: 2000
-        });
-      } else {
-        setCustomerSearchResults([]);
       }
+      setQuickCustomer(null);
+      setQuickPhoneStatus('notfound');
     } catch (error) {
-      console.error('Error searching customer:', error);
-      setCustomerSearchResults([]);
-    } finally {
-      setSearchingCustomer(false);
+      console.error('Error looking up customer:', error);
+      setQuickCustomer(null);
+      setQuickPhoneStatus('notfound');
     }
   };
+
   
-  const createCar = async () => {
-    if (!carForm.carNo.trim() || !carForm.carType || !carForm.customerId) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Warning',
-        detail: 'Please fill car number, car type, and select a customer.',
-        life: 3000
-      });
+
+  const quickRegisterVehicle = async () => {
+    if (!quickCarNo.trim()) {
+      toast.current?.show({ severity: 'warn', summary: 'Warning', detail: 'Vehicle number is missing', life: 2500 });
+      return;
+    }
+    if (!quickCarType) {
+      toast.current?.show({ severity: 'warn', summary: 'Warning', detail: 'Please select the vehicle type', life: 2500 });
+      return;
+    }
+    if (!quickCustomer && quickPhone.length !== 10) {
+      toast.current?.show({ severity: 'warn', summary: 'Warning', detail: 'Enter a valid 10-digit phone number', life: 2500 });
+      return;
+    }
+    if (!quickCustomer && !quickName.trim()) {
+      toast.current?.show({ severity: 'warn', summary: 'Warning', detail: 'Please enter the customer name', life: 2500 });
       return;
     }
 
-    setCreatingCar(true);
+    setQuickSaving(true);
     try {
       const token = localStorage.getItem('token');
-      const carPayload = {
-        carNo: carForm.carNo.toUpperCase(),
-        carType: carForm.carType,
-        model: carForm.model,
-        customerId: carForm.customerId
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       };
-      
-      console.log('Creating car with payload:', carPayload);
-      
-      const response = await fetch(`${API_BASE_URL}/api/cars`, {
+      let customerIdToUse = quickCustomer?.id || null;
+
+      // Create the customer only when the phone didn't match anyone
+      if (!customerIdToUse) {
+        const custRes = await fetch(`${API_BASE_URL}/api/customers`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ name: quickName.trim(), phoneNumber: quickPhone })
+        });
+        if (custRes.ok) {
+          const created = await custRes.json();
+          customerIdToUse = created.id;
+          setQuickCustomer(created);
+        } else {
+          // Customer may already exist (duplicate/race) — look them up by phone
+          const found = await fetch(`${API_BASE_URL}/api/customers/search/phone?phoneNumber=${quickPhone}`, { headers });
+          if (found.ok) {
+            const data = await found.json();
+            if (data && data.id) {
+              customerIdToUse = data.id;
+              setQuickCustomer(data);
+            }
+          }
+        }
+        if (!customerIdToUse) {
+          const error = await custRes.json().catch(() => ({}));
+          toast.current?.show({ severity: 'error', summary: 'Error', detail: error.message || 'Could not save customer details', life: 3000 });
+          setQuickSaving(false);
+          return;
+        }
+      }
+
+      const carRes = await fetch(`${API_BASE_URL}/api/cars`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(carPayload)
+        headers,
+        body: JSON.stringify({
+          carNo: quickCarNo.trim().toUpperCase(),
+          carType: quickCarType,
+          model: quickModel.trim() || null,
+          customerId: customerIdToUse
+        })
       });
-      
-      if (response.ok) {
-        const carData = await response.json();
-        console.log('Car created:', carData);
-        
-        // Store the created car's ID and customer ID
-        setCarId(carData.id);
-        setCustomerId(carData.customerId);
-        setCarFound(true);
-        setVehicleNumber(carData.carNo);
-        setCarType(carData.carType);
-        
-        // Close modal and reset form
-        setAddCarModalVisible(false);
-        setCarForm({ carNo: '', carType: '', model: '', customerId: null });
-        setCustomerSearchQuery('');
-        setCustomerSearchResults([]);
-        
+
+      if (carRes.ok) {
+        const car = await carRes.json();
+        setAllCars((prev) => [...prev.filter((c) => c.id !== car.id), car]);
+        applyFoundCar(car);
         toast.current?.show({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Car added successfully',
-          life: 3000
+          summary: 'Vehicle Registered',
+          detail: 'Continue with the bill below',
+          life: 2500
         });
       } else {
-        const error = await response.json();
-        toast.current?.show({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.message || 'Failed to add car',
-          life: 3000
-        });
+        const error = await carRes.json().catch(() => ({}));
+        if (error.message && error.message.toLowerCase().includes('already exists')) {
+          // Car was created meanwhile — just load it
+          const exactRes = await fetch(`${API_BASE_URL}/api/cars/search?carNo=${encodeURIComponent(quickCarNo.trim().toUpperCase())}`, { headers });
+          if (exactRes.ok) {
+            const data = await exactRes.json();
+            if (data && data.id) {
+              setAllCars((prev) => (prev.some((c) => c.id === data.id) ? prev : [...prev, data]));
+              applyFoundCar(data);
+            }
+          }
+        } else {
+          toast.current?.show({ severity: 'error', summary: 'Error', detail: error.message || 'Failed to register vehicle', life: 3000 });
+        }
       }
     } catch (error) {
-      console.error('Error creating car:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to add car',
-        life: 3000
-      });
+      console.error('Error registering vehicle:', error);
+      toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to register vehicle', life: 3000 });
     } finally {
-      setCreatingCar(false);
+      setQuickSaving(false);
     }
   };
   
@@ -1032,16 +941,18 @@ const Billing = () => {
     setPaymentMethod(null);
     setSelectedOutlet(null);
     setCarType(null);
-    setSearchCarNumber('');
+    setCarNumberQuery('');
     setCarFound(false);
     setCarData(null);
-    setNewCustomerModalVisible(false);
-    setNewCustomerForm({ name: '', phoneNumber: '' });
-    setAddCarModalVisible(false);
-    setCarForm({ carNo: '', carType: '', model: '', customerId: null });
-    setCustomerSearchQuery('');
-    setCustomerSearchResults([]);
-    setSelectedCustomerData(null);
+    setCarSuggestions([]);
+    setQuickRegVisible(false);
+    setQuickCarNo('');
+    setQuickPhone('');
+    setQuickPhoneStatus('idle');
+    setQuickCustomer(null);
+    setQuickName('');
+    setQuickCarType(null);
+    setQuickModel('');
     setAdditionalCharges([]);
     setNewCharge({ title: '', amount: 0 });
     setCarId(null);
@@ -1062,7 +973,7 @@ const Billing = () => {
       
       <div className="h-full overflow-auto">
         {/* Page Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div className="bg-white shadow-sm border-b border-gray-200 px-3 sm:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md">
@@ -1081,48 +992,237 @@ const Billing = () => {
           <form onSubmit={handleSubmit} className="h-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-full">
               {/* Left Side - Form Details */}
-              <div className="lg:col-span-9 p-4 sm:p-6 order-2 lg:order-1">
+              <div className="lg:col-span-9 p-3 sm:p-5 lg:p-6 order-2 lg:order-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4">
-                  {/* Car Number Search */}
+                  {/* ⚡ Vehicle Search — live suggestions as you type */}
                   <div className="col-span-1 sm:col-span-2">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border-l-4 border-blue-500 mb-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-2.5 sm:p-4 border-l-4 border-blue-500 mb-3 sm:mb-4">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <i className="pi pi-search text-blue-600"></i>
-                        Vehicle Search
+                        <i className="pi pi-bolt text-blue-600"></i>
+                        Quick Vehicle Lookup
                       </h3>
-                      <p className="text-xs text-gray-600 mt-1">Search by registration number to auto-fill details</p>
+                      <p className="text-xs text-gray-600 mt-1">Start typing the car number, customer name or phone — matching records appear instantly</p>
                     </div>
                   </div>
-                  
-                  <div className="col-span-1 sm:col-span-2">
+
+                  <div className="space-y-1.5 col-span-1 sm:col-span-2">
                     <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
                       <i className="pi pi-hashtag text-blue-600"></i>
                       Vehicle Registration Number *
                     </label>
                     <div className="flex gap-2">
-                      <InputText
-                        value={searchCarNumber}
-                        onChange={(e) => setSearchCarNumber(e.target.value.toUpperCase())}
-                        placeholder="e.g., UP32AB1234"
-                        className="flex-1 font-mono border border-gray-300 p-3 rounded-lg text-lg tracking-wide"
-                        onKeyPress={(e) => e.key === 'Enter' && searchCarByNumber()}
+                      <AutoComplete
+                        value={carNumberQuery}
+                        suggestions={carSuggestions}
+                        completeMethod={handleCarComplete}
+                        field="carNo"
+                        inputId="billCarNumber"
+                        placeholder="e.g., UP32AB1234 or customer name / phone"
+                        className="flex-1"
+                        inputClassName="w-full font-mono border border-gray-300 p-3 rounded-lg text-lg tracking-wide uppercase"
+                        loading={searching}
+                        onChange={(e) => {
+                          const val = e.value;
+                          if (val && typeof val === 'object') {
+                            handleCarSelect(val);
+                          } else {
+                            setCarNumberQuery((val || '').toUpperCase());
+                          }
+                        }}
+                        onKeyDown={handleCarInputKey}
+                        itemTemplate={(car) => (
+                          <div className="flex items-center justify-between w-full py-1 gap-3">
+                            <span className="font-mono font-bold text-gray-800">{car.carNo}</span>
+                            <span className="text-xs text-gray-500 truncate">
+                              {car.customerName} · {car.customerPhone} · {car.carType}
+                            </span>
+                          </div>
+                        )}
                       />
                       <Button
                         type="button"
-                        label="Search"
-                        icon="pi pi-search"
-                        onClick={searchCarByNumber}
-                        loading={searching}
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 text-white px-6 py-2.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
+                        label="New Vehicle"
+                        icon="pi pi-plus"
+                        onClick={() => {
+                          const typed = carNumberQuery.trim().toUpperCase();
+                          if (!typed) {
+                            toast.current?.show({
+                              severity: 'warn',
+                              summary: 'Warning',
+                              detail: 'Type the car number first, then click New Vehicle',
+                              life: 2500
+                            });
+                            return;
+                          }
+                          openQuickRegister(typed);
+                        }}
+                        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 border-0 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all whitespace-nowrap"
                       />
                     </div>
+                    {carNumberQuery && !carFound && carSuggestions.length === 0 && (
+                      <small className="text-amber-600 block flex items-center gap-1">
+                        <i className="pi pi-info-circle"></i>
+                        No match in records — press Enter or click &quot;New Vehicle&quot; to register it
+                      </small>
+                    )}
                   </div>
-                  
+
+                  {/* ⚡ Quick Vehicle Registration — one inline panel instead of two modals */}
+                  {quickRegVisible && (
+                    <div className="col-span-1 sm:col-span-2 bg-gradient-to-br from-purple-50 via-white to-blue-50 border border-purple-200 rounded-xl p-3 sm:p-5 space-y-3 sm:space-y-4 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2.5 rounded-xl shadow-md">
+                            <i className="pi pi-car text-xl text-white"></i>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-800">Register Vehicle</h4>
+                            <p className="text-xs text-gray-500">
+                              New vehicle <span className="font-mono font-bold text-purple-700">{quickCarNo}</span> — check the customer&apos;s phone first
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          icon="pi pi-times"
+                          rounded
+                          text
+                          severity="secondary"
+                          onClick={() => setQuickRegVisible(false)}
+                          disabled={quickSaving}
+                        />
+                      </div>
+
+                      {/* Step 1 — Phone number (auto-checks existing customers) */}
+                      <div>
+                        <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
+                          <i className="pi pi-phone text-purple-600"></i>
+                          Customer Phone Number <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative max-w-xs">
+                          <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">+91</span>
+                          <input
+                            type="text"
+                            value={quickPhone}
+                            onChange={(e) => handleQuickPhoneChange(e.target.value)}
+                            placeholder="9876543210"
+                            maxLength={10}
+                            autoFocus
+                            className="w-full border border-gray-300 pl-14 pr-4 py-2.5 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                          />
+                        </div>
+                        {quickPhoneStatus === 'checking' && (
+                          <small className="text-blue-600 block mt-1.5 flex items-center gap-1">
+                            <i className="pi pi-spin pi-spinner"></i> Checking existing customers…
+                          </small>
+                        )}
+                      </div>
+
+                      {/* Existing customer found → reuse them, no re-typing */}
+                      {quickPhoneStatus === 'found' && quickCustomer && (
+                        <div className="space-y-2">
+                          <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-3 flex items-start gap-3">
+                            <i className="pi pi-check-circle text-green-600 text-lg mt-0.5"></i>
+                            <div className="text-sm">
+                              <p className="font-semibold text-green-800">
+                                Existing customer: {quickCustomer.name} · +91 {quickCustomer.phoneNumber}
+                              </p>
+                              <p className="text-green-700 text-xs mt-0.5">Customer matched — this is their new car. Just pick the vehicle type below.</p>
+                            </div>
+                          </div>
+                          {allCars.filter((c) => c.customerId === quickCustomer.id).length > 0 && (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-xs font-semibold text-gray-600">Their vehicles:</span>
+                              {allCars
+                                .filter((c) => c.customerId === quickCustomer.id)
+                                .map((c) => (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => applyFoundCar(c)}
+                                    className="px-3 py-1 bg-white border border-green-300 hover:border-green-500 hover:bg-green-50 rounded-full text-xs font-mono font-bold text-gray-700 transition-all cursor-pointer"
+                                    title={`Bill ${c.carNo} directly`}
+                                  >
+                                    {c.carNo} <i className="pi pi-arrow-right text-[10px] text-green-600 ml-1"></i>
+                                  </button>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Not found → only then ask for the name */}
+                      {quickPhoneStatus === 'notfound' && (
+                        <div className="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-3 space-y-2">
+                          <p className="text-sm text-amber-800 flex items-center gap-2">
+                            <i className="pi pi-user-plus"></i>
+                            New customer — enter their name to create the record
+                          </p>
+                          <InputText
+                            value={quickName}
+                            onChange={(e) => setQuickName(e.target.value)}
+                            placeholder="e.g., John Doe"
+                            className="w-full max-w-xs border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                          />
+                        </div>
+                      )}
+
+                      {/* Step 2 — Vehicle details */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                          <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
+                            <i className="pi pi-sitemap text-purple-600"></i>
+                            Vehicle Type <span className="text-red-500">*</span>
+                          </label>
+                          <Dropdown
+                            value={quickCarType}
+                            onChange={(e) => setQuickCarType(e.value)}
+                            options={carTypes}
+                            placeholder="Select vehicle type"
+                            className="w-full border border-gray-300"
+                            panelClassName="custom-dropdown-panel"
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
+                            <i className="pi pi-tag text-purple-600"></i>
+                            Vehicle Model <span className="text-gray-400">(Optional)</span>
+                          </label>
+                          <InputText
+                            value={quickModel}
+                            onChange={(e) => setQuickModel(e.target.value)}
+                            placeholder="e.g., Creta, Swift, City"
+                            className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex justify-end gap-3 pt-3 border-t border-gray-200">
+                        <Button
+                          label="Cancel"
+                          icon="pi pi-times"
+                          onClick={() => setQuickRegVisible(false)}
+                          className="px-4 sm:px-6 py-2 sm:py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold"
+                          outlined
+                          disabled={quickSaving}
+                        />
+                        <Button
+                          label={quickPhoneStatus === 'found' ? 'Save Vehicle & Continue' : 'Create Customer & Vehicle'}
+                          icon="pi pi-check"
+                          onClick={quickRegisterVehicle}
+                          loading={quickSaving}
+                          className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 border-0 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {/* Outlet Selection - Admin Only (First) */}
                   {user?.role === 'ADMIN' && (
                     <>
                       <div className="col-span-1 sm:col-span-2">
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border-l-4 border-purple-500 mb-4 mt-4">
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-2.5 sm:p-4 border-l-4 border-purple-500 mb-3 mt-3 sm:mb-4 sm:mt-4">
                           <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                             <i className="pi pi-building text-purple-600"></i>
                             Outlet & Vehicle Configuration
@@ -1167,7 +1267,7 @@ const Billing = () => {
                   {/* Car Type for CASHIER */}
                   {user?.role === 'CASHIER' && (
                     <div className="col-span-1 sm:col-span-2">
-                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border-l-4 border-purple-500 shadow-sm mb-4">
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-2.5 sm:p-4 border-l-4 border-purple-500 shadow-sm mb-3 sm:mb-4">
                         <div className="flex items-center gap-2 mb-3">
                           <div className="bg-purple-500 p-2 rounded-full">
                             <i className="pi pi-car text-white"></i>
@@ -1194,8 +1294,8 @@ const Billing = () => {
                   )}
                   
                   {/* Customer Information */}
-                  <div className="col-span-1 sm:col-span-2 mt-4">
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border-l-4 border-green-500 shadow-sm">
+                  <div className="col-span-1 sm:col-span-2 mt-3 sm:mt-4">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-2.5 sm:p-4 border-l-4 border-green-500 shadow-sm">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="bg-green-500 p-2 rounded-full">
                           <i className="pi pi-user text-white"></i>
@@ -1203,7 +1303,7 @@ const Billing = () => {
                         <h3 className="text-sm font-bold text-gray-800">Customer & Vehicle Details</h3>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         {/* Customer Name */}
                         <div className="bg-white rounded-lg p-3 border border-green-200">
                           <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
@@ -1241,8 +1341,8 @@ const Billing = () => {
                   </div>
                   
                   {/* Service Selection */}
-                  <div className="col-span-1 sm:col-span-2 mt-4">
-                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border-l-4 border-blue-500 mb-4">
+                  <div className="col-span-1 sm:col-span-2 mt-3 sm:mt-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2.5 sm:p-4 border-l-4 border-blue-500 mb-3 sm:mb-4">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         <i className="pi pi-box text-blue-600"></i>
                         Service Selection
@@ -1300,8 +1400,8 @@ const Billing = () => {
                           </div>
                         }
                       >
-                        <div className="p-4 bg-gradient-to-br from-orange-50 to-amber-50">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div className="p-3 sm:p-4 bg-gradient-to-br from-orange-50 to-amber-50">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                             {/* Charge Title */}
                             <div className="space-y-2">
                               <label className="flex items-center gap-2 text-xs font-semibold text-gray-700">
@@ -1349,7 +1449,7 @@ const Billing = () => {
                           {/* List of Added Charges */}
                           {additionalCharges.length > 0 && (
                             <div className="col-span-1 sm:col-span-2">
-                              <div className="bg-white rounded-xl p-4 border-2 border-orange-200 shadow-sm">
+                              <div className="bg-white rounded-xl p-3 sm:p-4 border-2 border-orange-200 shadow-sm">
                                 <div className="flex items-center gap-2 mb-3 pb-2 border-b border-orange-100">
                                   <i className="pi pi-list text-orange-600"></i>
                                   <span className="text-sm font-bold text-gray-800">Added Charges</span>
@@ -1379,7 +1479,7 @@ const Billing = () => {
                                   ))}
                                 </div>
                                 {/* Total Additional Charges */}
-                                <div className="mt-4 pt-3 border-t-2 border-orange-200 flex items-center justify-between">
+                                <div className="mt-3 sm:mt-4 pt-3 border-t-2 border-orange-200 flex items-center justify-between">
                                   <span className="text-sm font-bold text-gray-700">Total Additional:</span>
                                   <span className="text-lg font-bold text-orange-600">
                                     {formatCurrency(additionalCharges.reduce((sum, charge) => sum + (charge.amount || 0), 0))}
@@ -1394,8 +1494,8 @@ const Billing = () => {
                   </div>
                   
                   {/* Payment Details */}
-                  <div className="col-span-1 sm:col-span-2 mt-4">
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 border-l-4 border-indigo-500 mb-4">
+                  <div className="col-span-1 sm:col-span-2 mt-3 sm:mt-4">
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-2.5 sm:p-4 border-l-4 border-indigo-500 mb-3 sm:mb-4">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         <i className="pi pi-wallet text-indigo-600"></i>
                         Payment Details
@@ -1477,7 +1577,7 @@ const Billing = () => {
                             onClick={validateCoupon}
                             loading={validatingCoupon}
                             disabled={!couponCode || validatingCoupon}
-                            className="bg-purple-600 hover:bg-purple-700 border-0 text-white px-6 py-3"
+                            className="bg-purple-600 hover:bg-purple-700 border-0 text-white px-4 sm:px-6 py-2.5 sm:py-3"
                           />
                         )}
                       </div>
@@ -1550,7 +1650,7 @@ const Billing = () => {
                   </div>
                   
                   {/* Action Buttons */}
-                  <div className="col-span-1 sm:col-span-2 mt-6 pt-4 border-t-2 border-gray-200">
+                  <div className="col-span-1 sm:col-span-2 mt-4 sm:mt-6 pt-4 border-t-2 border-gray-200">
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         type="submit"
@@ -1563,7 +1663,7 @@ const Billing = () => {
                         type="button"
                         label="Reset Form"
                         icon="pi pi-refresh"
-                        className="w-full sm:w-auto bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 border-0 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
+                        className="w-full sm:w-auto bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 border-0 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
                         onClick={resetForm}
                         disabled={submitting}
                       />
@@ -1573,9 +1673,9 @@ const Billing = () => {
               </div>
               
               {/* Right Side - Bill Summary */}
-              <div className="lg:col-span-3 bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 border-b lg:border-b-0 lg:border-l-2 border-gray-200 order-1 lg:order-2">
+              <div className="lg:col-span-3 bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-5 lg:p-6 border-b lg:border-b-0 lg:border-l-2 border-gray-200 order-1 lg:order-2">
                 <div className="sticky top-0">
-                  <div className="bg-white rounded-xl p-4 shadow-md mb-5">
+                  <div className="bg-white rounded-xl p-3 sm:p-4 shadow-md mb-4">
                     <h3 className="text-gray-800 font-bold text-base flex items-center gap-2">
                       <i className="pi pi-calculator text-blue-600 text-lg"></i>
                       Bill Summary
@@ -1584,18 +1684,18 @@ const Billing = () => {
                   </div>
                   
                   <div className="space-y-3">
-                    <div className="bg-white rounded-lg p-4 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow">
                       <div className="text-gray-600 text-xs mb-1 font-medium">💼 Package Amount</div>
                       <div className="font-bold text-xl text-gray-900">{formatCurrency(packageAmount)}</div>
                     </div>
                     
-                    <div className="bg-white rounded-lg p-4 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow">
                       <div className="text-gray-600 text-xs mb-1 font-medium">✨ Extras Amount</div>
                       <div className="font-bold text-xl text-gray-900">{formatCurrency(extrasAmount)}</div>
                     </div>
                     
                     {additionalCharges.length > 0 && (
-                      <div className="bg-white rounded-lg p-4 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-shadow">
                         <div className="text-gray-600 text-xs mb-1 font-medium">➕ Additional Charges</div>
                         <div className="font-bold text-xl text-gray-900">
                           {formatCurrency(additionalCharges.reduce((sum, charge) => sum + (charge.amount || 0), 0))}
@@ -1603,25 +1703,25 @@ const Billing = () => {
                       </div>
                     )}
                     
-                    <div className="bg-white rounded-lg p-4 border-l-4 border-gray-400 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-gray-400 shadow-sm hover:shadow-md transition-shadow">
                       <div className="text-gray-600 text-xs mb-1 font-medium">📊 Subtotal</div>
                       <div className="font-bold text-xl text-gray-900">{formatCurrency(totalAmount)}</div>
                     </div>
                     
-                    <div className="bg-white rounded-lg p-4 border-l-4 border-red-500 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-red-500 shadow-sm hover:shadow-md transition-shadow">
                       <div className="text-gray-600 text-xs mb-1 font-medium">🎫 Discount</div>
                       <div className="font-bold text-xl text-red-600">-{formatCurrency(discount || 0)}</div>
                     </div>
                     
                     {couponValidated && couponDiscount > 0 && (
-                      <div className="bg-white rounded-lg p-4 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-purple-500 shadow-sm hover:shadow-md transition-shadow">
                         <div className="text-gray-600 text-xs mb-1 font-medium">🎟️ Coupon Discount ({couponCode})</div>
                         <div className="font-bold text-xl text-purple-600">-{formatCurrency(couponDiscount)}</div>
                       </div>
                     )}
                   </div>
                   
-                  <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-5 mt-4 shadow-lg">
+                  <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-4 sm:p-5 mt-3 sm:mt-4 shadow-lg">
                     <div className="text-green-100 text-xs font-semibold mb-1 uppercase tracking-wide">💰 Total Amount</div>
                     <div className="text-white font-bold text-3xl">{formatCurrency(finalAmount)}</div>
                   </div>
@@ -1632,256 +1732,7 @@ const Billing = () => {
         </div>
       </div>
       
-      {/* New Customer Modal */}
-      <Dialog
-        visible={newCustomerModalVisible}
-        onHide={() => setNewCustomerModalVisible(false)}
-        modal
-        header={
-          <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-            <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-md">
-              <i className="pi pi-user-plus text-2xl text-white"></i>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-800">Add New Customer</h3>
-              <p className="text-sm text-gray-500">Register a new customer in the system</p>
-            </div>
-          </div>
-        }
-        style={{ width: '600px' }}
-        className="add-customer-dialog"
-      >
-        <div className="pt-4 space-y-5">
-          {/* Customer Name Field */}
-          <div className="relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <i className="pi pi-user text-green-600"></i>
-              Customer Name <span className="text-red-500">*</span>
-            </label>
-            <InputText
-              value={newCustomerForm.name}
-              onChange={(e) => setNewCustomerForm({ ...newCustomerForm, name: e.target.value })}
-              placeholder="e.g., John Doe"
-              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-            />
-            <small className="text-gray-500 mt-1 block">Enter the full name of the customer</small>
-          </div>
 
-          {/* Phone Number Field */}
-          <div className="relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <i className="pi pi-phone text-green-600"></i>
-              Phone Number <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">+91</span>
-              <InputText
-                value={newCustomerForm.phoneNumber}
-                onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phoneNumber: e.target.value })}
-                placeholder="9876543210"
-                className="w-full border border-gray-300 pl-14 p-3 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                keyfilter="int"
-                maxLength={10}
-              />
-            </div>
-            <small className="text-gray-500 mt-1 block">Enter a valid 10-digit mobile number</small>
-          </div>
-
-          {/* Info Box */}
-          <div className="bg-green-50 border-l-4 border-green-500 rounded-lg p-4 flex items-start gap-3">
-            <i className="pi pi-info-circle text-green-600 text-lg mt-0.5"></i>
-            <div className="text-sm">
-              <p className="font-semibold text-green-800 mb-1">Customer Record</p>
-              <p className="text-green-700">The customer will be registered and can be linked to multiple vehicles for future billing and tracking.</p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button
-              label="Cancel"
-              icon="pi pi-times"
-              onClick={() => {
-                setNewCustomerModalVisible(false);
-                setNewCustomerForm({ name: '', phoneNumber: '' });
-              }}
-              className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold"
-              outlined
-              disabled={creatingCustomer}
-            />
-            <Button
-              label="Create Customer"
-              icon="pi pi-check"
-              onClick={createNewCustomer}
-              loading={creatingCustomer}
-              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 border-0 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
-            />
-          </div>
-        </div>
-      </Dialog>
-      
-      {/* Add Car Modal */}
-      <Dialog
-        visible={addCarModalVisible}
-        onHide={() => setAddCarModalVisible(false)}
-        modal
-        header={
-          <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-md">
-              <i className="pi pi-car text-2xl text-white"></i>
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-800">Add New Vehicle</h3>
-              <p className="text-sm text-gray-500">Register a new vehicle for a customer</p>
-            </div>
-          </div>
-        }
-        style={{ width: '650px' }}
-        className="add-car-dialog"
-      >
-        <div className="pt-4 space-y-5">
-          {/* Show customer info if pre-filled */}
-          {selectedCustomerData && (
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-lg p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-500 p-2 rounded-full">
-                  <i className="pi pi-user text-white"></i>
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-purple-700 uppercase tracking-wide">Linked Customer</div>
-                  <div className="text-lg font-bold text-gray-900 mt-0.5">{selectedCustomerData.name}</div>
-                  <div className="text-sm text-gray-700 flex items-center gap-1 mt-0.5">
-                    <i className="pi pi-phone text-xs"></i>
-                    {selectedCustomerData.phoneNumber}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Car Number Field */}
-          <div className="relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <i className="pi pi-hashtag text-purple-600"></i>
-              Vehicle Registration Number <span className="text-red-500">*</span>
-            </label>
-            <InputText
-              value={carForm.carNo}
-              onChange={(e) => setCarForm({ ...carForm, carNo: e.target.value.toUpperCase() })}
-              placeholder="e.g., UP32AB1234, MH01CD5678"
-              className="w-full font-mono text-lg tracking-wider border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all uppercase"
-            />
-            <small className="text-gray-500 mt-1 block">Enter the vehicle&apos;s registration/license plate number</small>
-          </div>
-
-          {/* Car Type Field */}
-          <div className="relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <i className="pi pi-sitemap text-purple-600"></i>
-              Vehicle Type <span className="text-red-500">*</span>
-            </label>
-            <Dropdown
-              value={carForm.carType}
-              onChange={(e) => setCarForm({ ...carForm, carType: e.value })}
-              options={carTypes}
-              placeholder="Select vehicle type"
-              className="w-full border border-gray-300"
-              panelClassName="custom-dropdown-panel"
-            />
-            <small className="text-gray-500 mt-1 block">Select the category of the vehicle</small>
-          </div>
-
-          {/* Model Field */}
-          <div className="relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <i className="pi pi-tag text-purple-600"></i>
-              Vehicle Model <span className="text-gray-400 text-xs">(Optional)</span>
-            </label>
-            <InputText
-              value={carForm.model}
-              onChange={(e) => setCarForm({ ...carForm, model: e.target.value })}
-              placeholder="e.g., Creta, Swift, City"
-              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-            />
-            <small className="text-gray-500 mt-1 block">Specify the make and model for better identification</small>
-          </div>
-
-          {/* Customer Search Field */}
-          <div className="relative">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <i className="pi pi-phone text-purple-600"></i>
-              Customer Phone Number <span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">+91</span>
-                <InputText
-                  value={customerSearchQuery}
-                  onChange={(e) => setCustomerSearchQuery(e.target.value)}
-                  placeholder="9876543210"
-                  className="w-full border border-gray-300 pl-14 p-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  keyfilter="int"
-                  maxLength={10}
-                />
-              </div>
-              <Button
-                type="button"
-                label="Search"
-                icon="pi pi-search"
-                onClick={() => searchCustomers(customerSearchQuery)}
-                loading={searchingCustomer}
-                className="bg-purple-600 hover:bg-purple-700 border-0 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
-              />
-            </div>
-            <small className="text-gray-500 mt-1 block">Search for an existing customer to link this vehicle</small>
-            
-            {carForm.customerId && selectedCustomerData && (
-              <div className="mt-3 bg-green-50 border border-green-300 rounded-lg p-3 flex items-center gap-3 shadow-sm">
-                <div className="bg-green-500 p-2 rounded-full">
-                  <i className="pi pi-check-circle text-white"></i>
-                </div>
-                <div>
-                  <div className="font-semibold text-green-800">Customer Linked Successfully</div>
-                  <div className="text-sm text-green-700">{selectedCustomerData.name}</div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Info Box */}
-          <div className="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-4 flex items-start gap-3">
-            <i className="pi pi-info-circle text-purple-600 text-lg mt-0.5"></i>
-            <div className="text-sm">
-              <p className="font-semibold text-purple-800 mb-1">Vehicle Registration</p>
-              <p className="text-purple-700">This vehicle will be linked to the customer and can be used for quick billing in future visits.</p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button
-              label="Cancel"
-              icon="pi pi-times"
-              onClick={() => {
-                setAddCarModalVisible(false);
-                setCarForm({ carNo: '', carType: '', model: '', customerId: null });
-                setCustomerSearchQuery('');
-                setCustomerSearchResults([]);
-              }}
-              className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold"
-              outlined
-              disabled={creatingCar}
-            />
-            <Button
-              label="Add Vehicle"
-              icon="pi pi-check"
-              onClick={createCar}
-              loading={creatingCar}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 border-0 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
-            />
-          </div>
-        </div>
-      </Dialog>
 
       {/* ✅ Bill Created Success Dialog */}
       <Dialog

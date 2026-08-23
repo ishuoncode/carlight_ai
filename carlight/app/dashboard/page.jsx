@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Sidebar } from 'primereact/sidebar';
 import { Button } from 'primereact/button';
 import { PanelMenu } from 'primereact/panelmenu';
@@ -340,14 +341,25 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
-      {/* Mobile Toggle Button */}
-      <div className="lg:hidden p-4 bg-white shadow fixed top-0 left-0 right-0 z-50">
-        <Button
-          icon="pi pi-bars"
+      {/* ✅ Mobile Top Bar — in normal flow (not fixed), so no padding-top hack needed */}
+      <div className="lg:hidden h-14 shrink-0 bg-white shadow flex items-center justify-between px-3">
+        <button
           onClick={() => setVisible(true)}
-          className="p-button-text"
-          label="Menu"
+          aria-label="Open menu"
+          className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+        >
+          <i className="pi pi-bars text-xl"></i>
+        </button>
+        <Image
+          src="/images/logo3.png"
+          width={120}
+          height={40}
+          alt="CarLight Logo"
+          priority
+          className="h-8 w-auto"
         />
+        {/* spacer keeps the logo visually centered between the hamburger and screen edge */}
+        <div className="w-10"></div>
       </div>
 
       {/* Mobile Sidebar */}
@@ -356,7 +368,16 @@ export default function Dashboard() {
         onHide={() => setVisible(false)}
         className="lg:hidden w-64"
       >
-        <h2 className="text-xl font-bold mb-4 px-3">Dashboard Menu</h2>
+        <div className="flex items-center gap-3 mb-4 px-3 pt-2">
+          <Image
+            src="/images/logo3.png"
+            width={120}
+            height={40}
+            alt="CarLight Logo"
+            className="h-8 w-auto"
+          />
+        </div>
+        <h2 className="text-lg font-bold mb-4 px-3 text-gray-700">Dashboard Menu</h2>
         <PanelMenu
           model={menuItems}
           className="w-full"
@@ -364,7 +385,7 @@ export default function Dashboard() {
         />
       </Sidebar>
 
-      <div className="flex flex-1 overflow-hidden pt-16 lg:pt-0">
+      <div className="flex flex-1 overflow-hidden">
         {/* ✅ Desktop Sidebar — collapses to an icon rail via the hamburger */}
         <aside
           className={`hidden lg:flex flex-col bg-white shadow-lg transition-all duration-300 ${
@@ -431,8 +452,8 @@ export default function Dashboard() {
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
-          <div className="p-3 sm:p-4 lg:p-6">
-            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="p-2 sm:p-4 lg:p-6">
+            <div className="bg-white rounded-lg shadow p-3 sm:p-5 lg:p-6">
               {renderContent()}
             </div>
           </div>

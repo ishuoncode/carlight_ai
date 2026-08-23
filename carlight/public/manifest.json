@@ -1,0 +1,51 @@
+{
+  "name": "CarLight — Car Wash & Billing",
+  "short_name": "CarLight",
+  "description": "CarLight hand car wash — bookings, billing, and customer management.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Bill",
+      "url": "/dashboard",
+      "description": "Create a new bill"
+    },
+    {
+      "name": "Bill History",
+      "url": "/dashboard",
+      "description": "View billing history"
+    }
+  ]
+}

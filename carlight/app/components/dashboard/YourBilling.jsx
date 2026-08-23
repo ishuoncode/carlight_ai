@@ -227,21 +227,21 @@ export default function YourBilling() {
     <div className="max-w-7xl mx-auto">
       <Toast ref={toastRef} />
       
-      <div className="mb-6">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border-l-4 border-blue-500 shadow-sm">
+      <div className="mb-4 sm:mb-6">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 sm:p-6 border-l-4 border-blue-500 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-500 p-3 rounded-full">
-              <i className="pi pi-file text-white text-2xl"></i>
+            <div className="bg-blue-500 p-2 sm:p-3 rounded-full">
+              <i className="pi pi-file text-white text-xl sm:text-2xl"></i>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">My Bills</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-800">My Bills</h1>
               <p className="text-gray-600 mt-1">Track all your billing transactions</p>
             </div>
           </div>
         </div>
       </div>
 
-      <Card>
+      <Card className="bill-history-card">
         <DataTable
           value={bills}
           loading={loading}
@@ -258,12 +258,16 @@ export default function YourBilling() {
             field="billId" 
             header="Bill ID" 
             sortable 
+            headerClassName="hidden md:table-cell"
+            bodyClassName="hidden md:table-cell"
             style={{ width: '8%' }}
           />
           <Column 
             field="invoiceNo" 
             header="Invoice No" 
             sortable 
+            headerClassName="hidden md:table-cell"
+            bodyClassName="hidden md:table-cell"
             style={{ width: '12%' }}
           />
           <Column 
@@ -276,6 +280,8 @@ export default function YourBilling() {
             field="phoneNumber" 
             header="Phone" 
             sortable 
+            headerClassName="hidden lg:table-cell"
+            bodyClassName="hidden lg:table-cell"
             style={{ width: '11%' }}
           />
           <Column 
@@ -288,6 +294,8 @@ export default function YourBilling() {
             field="packageName" 
             header="Package" 
             sortable 
+            headerClassName="hidden md:table-cell"
+            bodyClassName="hidden md:table-cell"
             style={{ width: '13%' }}
           />
           <Column 
@@ -302,6 +310,8 @@ export default function YourBilling() {
             header="Payment" 
             body={paymentMethodBodyTemplate}
             sortable 
+            headerClassName="hidden md:table-cell"
+            bodyClassName="hidden md:table-cell"
             style={{ width: '10%' }}
           />
           <Column 
@@ -323,12 +333,12 @@ export default function YourBilling() {
       <Dialog
         header="Bill Details"
         visible={viewDialogVisible}
-        style={{ width: '60vw' }}
+        style={{ width: 'min(720px, 92vw)' }}
         onHide={() => setViewDialogVisible(false)}
         modal
       >
         {selectedBill && (
-          <div className="p-4">
+          <div className="p-2 sm:p-4">
             {/* Basic Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
