@@ -1,0 +1,330 @@
+$ next dev
+   ▲ Next.js 14.0.3
+   - Local:        http://localhost:3000
+   - Environments: .env
+
+ ✓ Ready in 3.2s
+ ○ Compiling / ...
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled / in 7.4s (1412 modules)
+ ✓ Compiled in 784ms (633 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /login in 8.4s (3189 modules)
+ ✓ Compiled in 5.7s (3203 modules)
+ ✓ Compiled in 5.4s (3203 modules)
+ ✓ Compiled in 1488ms (3203 modules)
+ ✓ Compiled in 10.8s (3203 modules)
+ ✓ Compiled in 4s (3203 modules)
+ ✓ Compiled in 1062ms (3203 modules)
+ ✓ Compiled in 967ms (3203 modules)
+ ✓ Compiled in 1363ms (3203 modules)
+ ✓ Compiled in 1014ms (3203 modules)
+ ✓ Compiled in 3s (3203 modules)
+ ✓ Compiled in 1248ms (3203 modules)
+ ✓ Compiled in 5.1s (3203 modules)
+ ✓ Compiled in 1400ms (3203 modules)
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: Failed to read source code from C:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: Failed to read source code from C:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:126:1]
+ [2m126[0m |       setLoading(false);
+ [2m127[0m |     };
+ [2m128[0m |     load();
+ [2m129[0m |   }, [selectedYear, selectedOutlet]);
+     : [31;1m                                    ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:284:1]
+ [2m284[0m |     ) : (
+ [2m285[0m |       <div className="flex items-center justify-center text-gray-400 h-full">No data available</div>
+ [2m286[0m |     )
+ [2m287[0m |   );
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:410:1]
+ [2m410[0m |             <p className="font-bold">{new Set(bills.map(b => b.phoneNumber).filter(Boolean)).size}</p>
+ [2m411[0m |           </div>
+ [2m412[0m |         </div>
+ [2m413[0m |       </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:411:1]
+ [2m411[0m |             <p className="font-bold">{new Set(bills.map(b => b.phoneNumber).filter(Boolean)).size}</p>
+ [2m412[0m |           </div>
+ [2m413[0m |         </div>
+ [2m414[0m |       </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:471:1]
+ [2m471[0m |           ) : (
+ [2m472[0m |             <div className="flex items-center justify-center text-gray-400 h-full">No expenses recorded</div>
+ [2m473[0m |           )}
+ [2m474[0m |         </ChartCard>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:514:1]
+ [2m514[0m |           ) : (
+ [2m515[0m |             <div className="flex items-center justify-center text-gray-400 h-full">No data available</div>
+ [2m516[0m |           )}
+ [2m517[0m |         </ChartCard>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/Analytics.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\Analytics.jsx[0m:540:1]
+ [2m540[0m |         {/* Car type distribution */}
+ [2m541[0m |         <ChartCard title="Car Type Distribution" icon="pi-car">
+ [2m542[0m |           {renderPie(carTypeData)}
+ [2m543[0m |         </ChartCard>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/Analytics.jsx
+./app/dashboard/page.jsx
+ ✓ Compiled in 5.9s (3203 modules)
+ ✓ Compiled in 2.4s (3203 modules)
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: Failed to read source code from C:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: Failed to read source code from C:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:132:1]
+ [2m132[0m |     fetchEnums();
+ [2m133[0m |     fetchOutlets();
+ [2m134[0m |     fetchExpenses();
+ [2m135[0m |   }, []);
+     : [31;1m        ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:216:1]
+ [2m216[0m |     ? `${months.find(m => m.value === selectedMonth)?.label || ''} ${selectedYear}`
+ [2m217[0m |     : viewMode === 'yearly' ? `Year ${selectedYear}`
+ [2m218[0m |     : fromDate && toDate ? `${formatDate(fromDate)} – ${formatDate(toDate)}`
+ [2m219[0m |     : 'Date Range';
+     : [31;1m                  ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:287:1]
+ [2m287[0m | 
+ [2m288[0m |   const clearFieldError = (field) => {
+ [2m289[0m |     if (formErrors[field]) setFormErrors(prev => ({ ...prev, [field]: undefined }));
+ [2m290[0m |   };
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Expected '}', got '<eof>'
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:348:1]
+ [2m348[0m |     document.body.removeChild(link);
+ [2m349[0m | 
+ [2m350[0m |     toast.current?.show({ severity: 'success', summary: 'Success', detail: `${filteredExpenses.length} expenses exported`, life: 3000 });
+ [2m351[0m |   };
+     : [31;1m   ^[0m
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:434:1]
+ [2m434[0m |               <i className="pi pi-arrow-up text-2xl text-orange-400"></i>
+ [2m435[0m |             </div>
+ [2m436[0m |           </div>
+ [2m437[0m |         </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:567:1]
+ [2m567[0m |               </div>
+ [2m568[0m |             )}
+ [2m569[0m |           </div>
+ [2m570[0m |         </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:628:1]
+ [2m628[0m |             />
+ [2m629[0m |           </DataTable>
+ [2m630[0m |         </div>
+ [2m631[0m |       </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:685:1]
+ [2m685[0m |               maxLength={100}
+ [2m686[0m |             />
+ [2m687[0m |             {formErrors.title && <p className="text-red-600 text-xs mt-1"><i className="pi pi-exclamation-circle mr-1"></i>{formErrors.title}</p>}
+ [2m688[0m |           </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ⨯ ./app/components/dashboard/ExpenseManagement.jsx
+Error: 
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4mC:\Users\Ishu\Desktop\ai carlight\carlight\app\components\dashboard\ExpenseManagement.jsx[0m:799:1]
+ [2m799[0m |             />
+ [2m800[0m |           </div>
+ [2m801[0m |         </form>
+ [2m802[0m |       </Dialog>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/dashboard/ExpenseManagement.jsx
+./app/dashboard/page.jsx
+ ✓ Compiled in 7s (3203 modules)
+ ✓ Compiled in 856ms (3203 modules)
+[?25h
