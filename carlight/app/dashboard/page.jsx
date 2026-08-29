@@ -25,7 +25,7 @@ import CouponManagement from '../components/dashboard/CouponManagement';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [visible, setVisible] = useState(false);
   // ✅ collapsible sidebar (desktop): open = full menu, closed = icon-only rail
   const [collapsed, setCollapsed] = useState(() => {
@@ -383,6 +383,18 @@ export default function Dashboard() {
           className="w-full"
           onClick={() => setVisible(false)}
         />
+        <div className="mt-auto p-3 border-t">
+          <button
+            onClick={() => {
+              setVisible(false);
+              logout();
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-sm font-medium border border-red-200"
+          >
+            <i className="pi pi-sign-out"></i>
+            Logout
+          </button>
+        </div>
       </Sidebar>
 
       <div className="flex flex-1 overflow-hidden">
@@ -431,19 +443,37 @@ export default function Dashboard() {
                     </button>
                   );
                 })}
+              {/* Logout button in collapsed sidebar */}
+              <button
+                onClick={logout}
+                title="Logout"
+                className="relative w-full flex items-center justify-center py-3 my-0.5 text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors group"
+              >
+                <i className="pi pi-sign-out text-xl"></i>
+                <span className="absolute left-[110%] z-50 whitespace-nowrap bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                  Logout
+                </span>
+              </button>
             </nav>
           ) : (
             <>
               <div className="flex-1 overflow-y-auto scrollbar-hide p-4">
                 <PanelMenu model={menuItems} className="w-full" />
               </div>
-              <div className="p-3 border-t">
+              <div className="p-3 border-t flex flex-col gap-2">
                 <button
                   onClick={() => setCollapsed(true)}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600 transition-colors text-sm font-medium"
                 >
                   <i className="pi pi-angle-double-left"></i>
                   Collapse Menu
+                </button>
+                <button
+                  onClick={logout}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors text-sm font-medium border border-red-200"
+                >
+                  <i className="pi pi-sign-out"></i>
+                  Logout
                 </button>
               </div>
             </>

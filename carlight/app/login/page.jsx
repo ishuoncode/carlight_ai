@@ -41,7 +41,7 @@ export default function Login() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         // Store token if available
@@ -56,28 +56,29 @@ export default function Login() {
           role: data.role,
           outletId: data.outletId
         };
-        
+
         // Store user ID separately
         if (userData.id) {
           localStorage.setItem('userId', userData.id.toString());
         }
-        
+
         // Store outlet ID separately if user has one
         if (userData.outletId) {
           localStorage.setItem('outletId', userData.outletId.toString());
         }
-        
+
         localStorage.setItem('user', JSON.stringify(userData));
         // Store user data in context
         login(userData);
         router.push('/dashboard');
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Invalid credentials');
+        setError(errorData.message || 'Invalid phone number or password. Please try again.');
       }
-      
+
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      console.error('Login error:', err);
+      setError('Unable to connect to server. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }

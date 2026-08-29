@@ -7,10 +7,13 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 import { Calendar } from 'primereact/calendar';
 import * as XLSX from 'xlsx';
+import { useAuth } from '@/app/context/AuthContext';
 
 const CarFrequency = () => {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const toast = React.useRef(null);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [carData, setCarData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -252,14 +255,16 @@ const CarFrequency = () => {
               <p className="text-gray-600 mt-2">Track vehicle visit frequency and spending</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                label="Export to Excel"
-                icon="pi pi-file-excel"
-                onClick={exportToExcel}
-                className="border-0 bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-                disabled={filteredCars.length === 0}
-              />
+              {isAdmin && (
+                <Button
+                  type="button"
+                  label="Export to Excel"
+                  icon="pi pi-file-excel"
+                  onClick={exportToExcel}
+                  className="border-0 bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                  disabled={filteredCars.length === 0}
+                />
+              )}
               <Button
                 type="button"
                 label="Refresh"

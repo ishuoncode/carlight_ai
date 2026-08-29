@@ -198,32 +198,33 @@ export default function WashPackage({ onBack }) {
     ];
 
     return (
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center justify-between w-full md:w-auto">
           <h2 className="text-xl font-bold">Wash Packages</h2>
           <Button
-            label="Add Package"
+            label="Add"
             icon="pi pi-plus"
             onClick={openAddDialog}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold shadow-md hover:shadow-lg transition-all"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 font-semibold shadow-md hover:shadow-lg transition-all md:px-4"
+            style={{ minWidth: 'max-content' }}
           />
         </div>
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-col flex-wrap sm:flex-row gap-3 items-stretch w-full md:w-auto">
           <Dropdown
             value={activeFilter}
             options={statusOptions}
             onChange={(e) => setActiveFilter(e.value)}
             placeholder="Filter by Status"
-            className="w-40"
+            className="w-full sm:w-40"
             showClear
           />
-          <span className="p-input-icon-left">
+          <span className="p-input-icon-left w-full sm:w-auto">
             <i className="pi pi-search" style={{ left: '0.75rem' }} />
             <InputText
               value={globalFilterValue}
               onChange={onGlobalFilterChange}
               placeholder="Search packages..."
-              className="p-inputtext-sm pl-10 pr-4 py-2 border border-gray-300"
+              className="w-full sm:w-auto p-inputtext-sm pl-10 pr-4 py-2 border border-gray-300"
             />
           </span>
         </div>
@@ -232,24 +233,24 @@ export default function WashPackage({ onBack }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto p-2 sm:p-0">
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center items-start gap-3 mb-4">
           {onBack && (
             <Button
               icon="pi pi-arrow-left"
               onClick={onBack}
-              className="bg-gray-500 hover:bg-gray-600 text-white border-0 px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
+              className="bg-gray-500 hover:bg-gray-600 text-white border-0 px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all self-start sm:self-center"
               tooltip="Back to Service Options"
               tooltipOptions={{ position: 'bottom' }}
             />
           )}
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-              <i className="pi pi-box text-blue-600"></i>
-              Wash Package Management
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
+              <i className="pi pi-box text-blue-600 text-xl sm:text-2xl"></i>
+              Wash Packages
             </h1>
-            <p className="text-gray-600 mt-2">View and manage wash packages</p>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">View and manage wash packages</p>
           </div>
         </div>
       </div>
@@ -267,35 +268,35 @@ export default function WashPackage({ onBack }) {
           emptyMessage="No packages found"
           className="p-datatable-sm"
           stripedRows
-          style={{ tableLayout: 'fixed' }}
+          scrollable
         >
-          <Column field="id" header="ID" sortable style={{ width: '8%' }}></Column>
-          <Column 
-            field="name" 
-            header="Name" 
-            sortable 
-            style={{ width: '35%' }}
+          <Column field="id" header="ID" sortable style={{ minWidth: '80px', width: '10%' }}></Column>
+          <Column
+            field="name"
+            header="Name"
+            sortable
+            style={{ minWidth: '150px', width: '30%' }}
             body={(rowData) => (
               <div className="truncate overflow-hidden" title={rowData.name}>
                 {rowData.name}
               </div>
             )}
           ></Column>
-          <Column 
-            field="description" 
-            header="Description" 
-            sortable 
-            style={{ width: '25%' }}
+          <Column
+            field="description"
+            header="Description"
+            sortable
+            style={{ minWidth: '200px', width: '35%' }}
             body={(rowData) => (
               <div className="truncate overflow-hidden whitespace-nowrap" style={{ maxWidth: '100%' }} title={rowData.description}>
-                {rowData.description?.length > 40 
-                  ? rowData.description.substring(0, 40) + '...' 
+                {rowData.description?.length > 40
+                  ? rowData.description.substring(0, 40) + '...'
                   : rowData.description}
               </div>
             )}
           ></Column>
-          <Column field="active" header="Status" body={activeBodyTemplate} sortable style={{ width: '12%' }}></Column>
-          <Column header="Actions" body={actionBodyTemplate} style={{ width: '20%' }}></Column>
+          <Column field="active" header="Status" body={activeBodyTemplate} sortable style={{ minWidth: '110px', width: '15%' }}></Column>
+          <Column header="Actions" body={actionBodyTemplate} style={{ minWidth: '100px', width: '10%' }}></Column>
         </DataTable>
       </Card>
 
@@ -308,7 +309,7 @@ export default function WashPackage({ onBack }) {
           </div>
         }
         visible={editDialogVisible}
-        style={{ width: '600px' }}
+        style={{ width: '90vw', maxWidth: '600px' }}
         onHide={() => setEditDialogVisible(false)}
         modal
         className="p-dialog-custom"
@@ -394,7 +395,7 @@ export default function WashPackage({ onBack }) {
           </div>
         }
         visible={addDialogVisible}
-        style={{ width: '600px' }}
+        style={{ width: '90vw', maxWidth: '600px' }}
         onHide={() => setAddDialogVisible(false)}
         modal
         className="p-dialog-custom"

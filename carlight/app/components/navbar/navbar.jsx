@@ -15,50 +15,56 @@ export default function Navbar() {
 
 
   return (
-    <div className="flex bg-[#f8f8f8] shadow items-center py-2">
-      <div>
+    <div className="flex bg-[#f8f8f8] shadow items-center py-3">
+      <div className="flex-shrink-0">
         <Image
           src="/images/logo3.png"
           width={1000}
           height={1000}
           loading="lazy"
           alt="logo"
-          className="mxs:h-16 mxs:w-56 mxs:ml-5 h-8 w-25 ml-3"
+          className="h-10 w-auto md:h-12 lg:h-14"
         />
       </div>
-      <div className="hidden md:grid grid-cols-5 gap-2 mx-auto w-1/3">
+
+      <div className="hidden md:flex md:items-center md:space-x-4 flex-1">
         <MenuItems
           items={user ? ['Home', 'Dashboard', 'Booking', 'Service', 'Contact'] : ['Home', 'Booking', 'Service', 'Contact']}
           link={user ? ['/#home', '/dashboard', '/#booking', '/#services', '/#contact'] : ['/#home', '/#booking', '/#services', '/#contact']}
         />
       </div>
-      <div className="hidden sm:grid grid-cols-2 gap-5 mr-10 sm:mr-2 sm:gap-1">
-        <SlSocialFacebook className="w-10 h-5 cursor-pointer" />
-        <IoMailOutline className="w-10 h-5 cursor-pointer" />
+
+      <div className="hidden md:flex md:items-center md:space-x-3">
+        <SlSocialFacebook className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" />
+        <IoMailOutline className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity" />
       </div>
+
       {user ? (
-        <div className="flex items-center gap-3 mr-5">
+        <div className="hidden md:flex md:items-center md:space-x-3">
           <Link href="/dashboard">
-            <span className="font-semibold hidden lg:block cursor-pointer hover:text-blue-600 transition-colors">
+            <span className="font-semibold text-gray-700 hover:text-blue-600 transition-colors">
               {user.name || user.phoneNumber}
             </span>
           </Link>
           <button
             onClick={logout}
-            className="cursor-pointer border-2 px-5 py-1 hover:bg-[#cccccc] duration-300 hidden lg:block"
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
           >
             Logout
           </button>
         </div>
       ) : (
-        <Link href="/login">
-          <button className="mr-5 cursor-pointer border-2 px-5 py-1 hover:bg-[#cccccc] duration-300 lg:block hidden">
-            Login
-          </button>
-        </Link>
+        <div className="hidden md:flex md:items-center md:space-x-3">
+          <Link href="/login">
+            <button className="px-4 py-1.5 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 hover:text-blue-800 transition-colors font-medium text-sm">
+              Login
+            </button>
+          </Link>
+        </div>
       )}
+
       <Menuweb className="hidden lg:block" />
-      <div className=" lg:hidden">
+      <div className="md:hidden">
         <Menumobile />
       </div>
     </div>

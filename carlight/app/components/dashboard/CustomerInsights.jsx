@@ -237,7 +237,15 @@ const CustomerInsights = () => {
       'Total Spend (INR)': c.totalSpend ? Number(c.totalSpend).toFixed(2) : '0.00',
       'First Visit': formatDate(c.firstVisitDate),
       'Last Visit': formatDate(c.lastVisitDate),
-      'Days Since Last Visit': c.daysSinceLastVisit ?? 'N/A',
+      'Absent For': c.daysSinceLastVisit == null
+        ? 'Unknown'
+        : c.daysSinceLastVisit <= 30
+          ? `${c.daysSinceLastVisit} days ago`
+          : c.daysSinceLastVisit <= 90
+            ? `${c.daysSinceLastVisit} days ago`
+            : c.daysSinceLastVisit <= 180
+              ? `${c.daysSinceLastVisit} days ago`
+              : `${Math.floor(c.daysSinceLastVisit / 30)}+ month${Math.floor(c.daysSinceLastVisit / 30) > 1 ? 's' : ''} ago`,
       'Outlets': (c.outlets || []).join(', ')
     }));
 

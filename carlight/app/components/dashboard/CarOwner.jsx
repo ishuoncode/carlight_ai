@@ -292,14 +292,16 @@ const CarOwner = () => {
               <p className="text-gray-600 mt-2">View all registered vehicles and their owners</p>
             </div>
             <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-              <Button
-                icon="pi pi-file-excel"
-                label="Export"
-                onClick={exportToExcel}
-                disabled={filteredCars.length === 0}
-                className="bg-green-600 hover:bg-green-700 border-0 text-white px-4 sm:px-6 py-2 sm:py-3"
-                tooltip="Export to Excel"
-              />
+              {isAdmin && (
+                <Button
+                  icon="pi pi-file-excel"
+                  label="Export"
+                  onClick={exportToExcel}
+                  disabled={filteredCars.length === 0}
+                  className="bg-green-600 hover:bg-green-700 border-0 text-white px-4 sm:px-6 py-2 sm:py-3"
+                  tooltip="Export to Excel"
+                />
+              )}
               <Button
                 icon="pi pi-refresh"
                 label="Refresh"

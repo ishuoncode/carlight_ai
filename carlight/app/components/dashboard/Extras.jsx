@@ -224,32 +224,33 @@ export default function Extras() {
     ];
 
     return (
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center justify-between w-full md:w-auto">
           <h2 className="text-xl font-bold">Extra Services</h2>
           <Button
-            label="Add Extra"
+            label="Add"
             icon="pi pi-plus"
             onClick={openAddDialog}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-semibold shadow-md hover:shadow-lg transition-all"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 font-semibold shadow-md hover:shadow-lg transition-all md:px-4"
+            style={{ minWidth: 'max-content' }}
           />
         </div>
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch w-full md:w-auto">
           <Dropdown
             value={activeFilter}
             options={statusOptions}
             onChange={(e) => setActiveFilter(e.value)}
             placeholder="Filter by Status"
-            className="w-40"
+            className="w-full sm:w-40"
             showClear
           />
-          <span className="p-input-icon-left">
+          <span className="p-input-icon-left w-full sm:w-auto">
             <i className="pi pi-search" style={{ left: '0.75rem' }} />
             <InputText
               value={globalFilterValue}
               onChange={onGlobalFilterChange}
               placeholder="Search extras..."
-              className="p-inputtext-sm pl-10 pr-4 py-2 border border-gray-300"
+              className="w-full sm:w-auto p-inputtext-sm pl-10 pr-4 py-2 border border-gray-300"
             />
           </span>
         </div>
@@ -258,13 +259,13 @@ export default function Extras() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto p-2 sm:p-0">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
           <i className="pi pi-plus-circle text-blue-600"></i>
-          Extra Services Management
+          Extra Services
         </h1>
-        <p className="text-gray-600 mt-2">Manage additional services like tyre polish, waxing, etc.</p>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage additional services like tyre polish, waxing, etc.</p>
       </div>
 
       <Card>
@@ -279,13 +280,14 @@ export default function Extras() {
           header={renderHeader()}
           emptyMessage="No extra services found"
           stripedRows
-          className="text-sm"
+          className="text-sm p-datatable-sm"
+          scrollable
         >
           <Column
             field="name"
             header="Name"
             sortable
-            style={{ minWidth: '200px' }}
+            style={{ minWidth: '180px', width: '40%' }}
             body={(rowData) => (
               <span className="block truncate max-w-xs" title={rowData.name}>
                 {rowData.name}
@@ -297,19 +299,19 @@ export default function Extras() {
             header="Price"
             body={priceBodyTemplate}
             sortable
-            style={{ minWidth: '120px' }}
+            style={{ minWidth: '100px', width: '20%' }}
           />
           <Column
             field="active"
             header="Status"
             body={activeBodyTemplate}
             sortable
-            style={{ minWidth: '120px' }}
+            style={{ minWidth: '110px', width: '20%' }}
           />
           <Column
             header="Actions"
             body={actionBodyTemplate}
-            style={{ minWidth: '100px' }}
+            style={{ minWidth: '90px', width: '20%' }}
           />
         </DataTable>
       </Card>
@@ -325,12 +327,12 @@ export default function Extras() {
               <i className="pi pi-plus-circle text-2xl text-white"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">Add Extra Service</h3>
-              <p className="text-sm text-gray-500">Create a new additional service</p>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">Add Extra Service</h3>
+              <p className="text-xs sm:text-sm text-gray-500">Create a new additional service</p>
             </div>
           </div>
         }
-        style={{ width: '600px' }}
+        style={{ width: '90vw', maxWidth: '600px' }}
         className="add-extra-dialog"
       >
         <div className="pt-4 space-y-5">
@@ -413,12 +415,12 @@ export default function Extras() {
               <i className="pi pi-pencil text-xl text-white"></i>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-800">Edit Extra Service</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">Edit Extra Service</h3>
               <p className="text-xs text-gray-500 mt-0.5">Update service details and availability</p>
             </div>
           </div>
         }
-        style={{ width: '550px', maxWidth: '95vw' }}
+        style={{ width: '90vw', maxWidth: '550px' }}
         className="edit-extra-dialog"
       >
         <div className="pt-4 space-y-4">

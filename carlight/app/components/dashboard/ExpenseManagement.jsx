@@ -515,9 +515,11 @@ const ExpenseManagement = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Outlet</label>
               <Dropdown
                 value={selectedOutlet}
-                options={[{ label: 'All Outlets', value: '' }, ...outlets]}
+                options={outlets}
                 onChange={(e) => setSelectedOutlet(e.value)}
                 className="w-full border border-gray-300"
+                placeholder="Select an outlet"
+                showClear
               />
             </div>
 

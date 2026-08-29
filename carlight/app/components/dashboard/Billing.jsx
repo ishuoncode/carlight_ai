@@ -968,31 +968,29 @@ const Billing = () => {
   };
   
   return (
-    <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex flex-col h-full">
       <Toast ref={toast} />
-      
-      <div className="h-full overflow-auto">
-        {/* Page Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200 px-3 sm:px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md">
-                <i className="pi pi-receipt text-2xl text-white"></i>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Create New Bill</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Generate invoice for car wash services</p>
-              </div>
-            </div>
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-4 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md">
+            <i className="pi pi-receipt text-2xl text-white"></i>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Create New Bill</h1>
+            <p className="text-sm text-gray-600 mt-0.5">Generate invoice for car wash services</p>
           </div>
         </div>
+      </div>
 
-        {/* Main Form Card */}
-        <div className="bg-white shadow-lg m-4 sm:m-6 rounded-xl overflow-hidden">
-          <form onSubmit={handleSubmit} className="h-full">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 min-h-full">
+      {/* Main Form Card */}
+      <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col p-4 sm:p-6">
+        <div className="bg-white shadow-lg rounded-xl overflow-hidden flex-1 flex flex-col">
+          <form onSubmit={handleSubmit} className="flex flex-col h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 flex-1 min-h-0">
               {/* Left Side - Form Details */}
-              <div className="lg:col-span-9 p-3 sm:p-5 lg:p-6 order-2 lg:order-1">
+              <div className="lg:col-span-9 p-3 sm:p-5 lg:p-6 order-2 lg:order-1 overflow-y-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4">
                   {/* ⚡ Vehicle Search — live suggestions as you type */}
                   <div className="col-span-1 sm:col-span-2">
@@ -1673,16 +1671,16 @@ const Billing = () => {
               </div>
               
               {/* Right Side - Bill Summary */}
-              <div className="lg:col-span-3 bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-5 lg:p-6 border-b lg:border-b-0 lg:border-l-2 border-gray-200 order-1 lg:order-2">
-                <div className="sticky top-0">
-                  <div className="bg-white rounded-xl p-3 sm:p-4 shadow-md mb-4">
+              <div className="lg:col-span-3 bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-5 lg:p-6 border-b lg:border-b-0 lg:border-l-2 border-gray-200 order-1 lg:order-2 overflow-y-auto flex-1 lg:flex-none">
+                <div className="space-y-4">
+                  <div>
                     <h3 className="text-gray-800 font-bold text-base flex items-center gap-2">
                       <i className="pi pi-calculator text-blue-600 text-lg"></i>
                       Bill Summary
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">Invoice breakdown and total</p>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="bg-white rounded-lg p-3 sm:p-4 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow">
                       <div className="text-gray-600 text-xs mb-1 font-medium">💼 Package Amount</div>
@@ -1720,7 +1718,7 @@ const Billing = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-4 sm:p-5 mt-3 sm:mt-4 shadow-lg">
                     <div className="text-green-100 text-xs font-semibold mb-1 uppercase tracking-wide">💰 Total Amount</div>
                     <div className="text-white font-bold text-3xl">{formatCurrency(finalAmount)}</div>
@@ -1731,7 +1729,6 @@ const Billing = () => {
           </form>
         </div>
       </div>
-      
 
 
       {/* ✅ Bill Created Success Dialog */}

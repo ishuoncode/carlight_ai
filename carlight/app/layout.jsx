@@ -4,12 +4,9 @@ import 'primereact/resources/themes/lara-light-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import Providers from './providers';
-import Navbar from './components/navbar/navbar';
-import Footer from './components/footer';
-import GoToTop from './components/GotoTop';
+import LayoutContent from './components/LayoutContent';
 import PwaRegister from './components/PwaRegister';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import {Toaster} from "react-hot-toast"
 // import { StoreProvider } from '@/redux/StoreProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -47,12 +44,8 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         {/* <StoreProvider> */}
         <Providers>
-          <Toaster position="top-center" reverseOrder={false} />
-          <Navbar />
-          {children}
+          <LayoutContent>{children}</LayoutContent>
           <SpeedInsights />
-          <GoToTop />
-          <Footer />
           {/* PWA: registers the service worker for offline support & install */}
           <PwaRegister />
         </Providers>

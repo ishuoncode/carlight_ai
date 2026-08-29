@@ -76,7 +76,7 @@ export default function MenuMobile() {
                   Contact
                 </Link>
               </p>{' '}
-              {user && (
+              {user ? (
                 <>
                   <hr />
                   <p className="">
@@ -97,6 +97,15 @@ export default function MenuMobile() {
                     >
                       Logout
                     </button>
+                  </p>{' '}
+                </>
+              ) : (
+                <>
+                  <hr />
+                  <p className="">
+                    <Link href="/login" onClick={() => setShowMenu(!showMenu)}>
+                      Login
+                    </Link>
                   </p>{' '}
                 </>
               )}

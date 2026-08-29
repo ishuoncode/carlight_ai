@@ -259,15 +259,15 @@ export default function ListStaff({ outlets }) {
     ];
 
     return (
-      <div className="flex flex-wrap justify-between items-center gap-3">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-xl font-bold">Staff Members</h2>
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch w-full md:w-auto">
           <Dropdown
             value={activeFilter}
             options={statusOptions}
             onChange={(e) => setActiveFilter(e.value)}
             placeholder="Filter by Status"
-            className="w-40"
+            className="w-full sm:w-40"
             showClear
           />
           <Dropdown
@@ -275,16 +275,16 @@ export default function ListStaff({ outlets }) {
             options={outlets}
             onChange={(e) => setSelectedOutlet(e.value)}
             placeholder="Filter by Outlet"
-            className="w-48"
+            className="w-full sm:w-48"
             showClear
           />
-          <span className="p-input-icon-left">
+          <span className="p-input-icon-left w-full sm:w-auto">
             <i className="pi pi-search" style={{ left: '0.75rem' }} />
             <InputText
               value={globalFilterValue}
               onChange={onGlobalFilterChange}
               placeholder="Search staff..."
-              className="p-inputtext-sm pl-10 pr-4 py-2 border border-gray-300"
+              className="w-full sm:w-auto p-inputtext-sm pl-10 pr-4 py-2 border border-gray-300"
             />
           </span>
         </div>
@@ -293,13 +293,13 @@ export default function ListStaff({ outlets }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto p-2 sm:p-0">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
           <i className="pi pi-users text-purple-600"></i>
           Staff Management
         </h1>
-        <p className="text-gray-600 mt-2">View and manage your staff members</p>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">View and manage your staff members</p>
       </div>
 
       <Card>
@@ -315,24 +315,25 @@ export default function ListStaff({ outlets }) {
           emptyMessage="No staff found"
           className="p-datatable-sm"
           stripedRows
+          scrollable
         >
-          <Column field="id" header="ID" sortable style={{ width: '5%' }}></Column>
-          <Column 
-            field="name" 
-            header="Name" 
-            sortable 
-            style={{ width: '20%' }}
+          <Column field="id" header="ID" sortable style={{ minWidth: '70px', width: '5%' }}></Column>
+          <Column
+            field="name"
+            header="Name"
+            sortable
+            style={{ minWidth: '150px', width: '20%' }}
             body={(rowData) => (
               <span className="block truncate" title={rowData.name}>
                 {rowData.name}
               </span>
             )}
           ></Column>
-          <Column field="phoneNumber" header="Phone Number" sortable style={{ width: '15%' }}></Column>
-          <Column field="role" header="Role" sortable style={{ width: '12%' }}></Column>
-          <Column field="outletId" header="Outlet" body={outletBodyTemplate} sortable style={{ width: '15%' }}></Column>
-          <Column field="active" header="Status" body={activeBodyTemplate} sortable style={{ width: '10%' }}></Column>
-          <Column header="Actions" body={actionBodyTemplate} style={{ width: '18%' }}></Column>
+          <Column field="phoneNumber" header="Phone Number" sortable style={{ minWidth: '130px', width: '15%' }}></Column>
+          <Column field="role" header="Role" sortable style={{ minWidth: '100px', width: '12%' }}></Column>
+          <Column field="outletId" header="Outlet" body={outletBodyTemplate} sortable style={{ minWidth: '140px', width: '15%' }}></Column>
+          <Column field="active" header="Status" body={activeBodyTemplate} sortable style={{ minWidth: '100px', width: '10%' }}></Column>
+          <Column header="Actions" body={actionBodyTemplate} style={{ minWidth: '130px', width: '18%' }}></Column>
         </DataTable>
       </Card>
 
@@ -345,7 +346,7 @@ export default function ListStaff({ outlets }) {
           </div>
         }
         visible={editDialogVisible}
-        style={{ width: '550px' }}
+        style={{ width: '90vw', maxWidth: '550px' }}
         onHide={() => setEditDialogVisible(false)}
         modal
         className="p-dialog-custom"
@@ -416,7 +417,7 @@ export default function ListStaff({ outlets }) {
           </div>
         }
         visible={passwordDialogVisible}
-        style={{ width: '480px' }}
+        style={{ width: '90vw', maxWidth: '480px' }}
         onHide={() => setPasswordDialogVisible(false)}
         modal
         className="p-dialog-custom"
@@ -485,7 +486,7 @@ export default function ListStaff({ outlets }) {
           </div>
         }
         visible={deleteDialogVisible}
-        style={{ width: '450px' }}
+        style={{ width: '90vw', maxWidth: '450px' }}
         onHide={() => setDeleteDialogVisible(false)}
         modal
         footer={

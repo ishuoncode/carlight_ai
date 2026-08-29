@@ -7,174 +7,202 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import svgIcon from "@/public/carwash.svg";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import Link from "next/link";
 import "./slider.css";
 
 export default function Slider() {
-  const customStyle = {
-    height: "615px",
-    zIndex: "1",
-    "@media (max-width: 500px)": {
-      height: "500px",
-    },
-  };
-
   return (
-    <div id="home">
+    <div id="home" className="relative w-full">
       <Swiper
         slidesPerView={1}
         centeredSlides={true}
         autoplay={{
-          delay: 8000,
+          delay: 5000,
           disableOnInteraction: false,
         }}
         loop={true}
         pagination={{
           clickable: true,
+          dynamicBullets: true,
         }}
         navigation={true}
         modules={[Autoplay, Pagination, Navigation]}
-        className="mySwiper mySlider"
-        // style={customStyle}
+        className="mySwiper mySlider w-full"
       >
-        <AnimatePresence>
-          <SwiperSlide>
-            <div className=" h-full items-center bg-[#9EB8D9]">
+        {/* Slide 1: Illustration */}
+        <SwiperSlide className="flex items-center justify-center">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#9EB8D9] to-[#7A9BC4] relative overflow-hidden p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center justify-center z-10 text-center"
+            >
               <Image
                 src={svgIcon}
-                alt="My SVG"
-                width={200}
-                height={200}
-                className="relative top-[8rem] w-full h-50 "
+                alt="Car Wash Icon"
+                width={150}
+                height={150}
+                className="mb-4 sm:mb-6"
                 loading="lazy"
               />
-              <motion.div
-                initial={{ opacity: 0, x: "+100%" }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: "+100%" }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className=""
-              >
-                <Image
-                  src="/images/bluecar.png"
-                  alt="My SVG"
-                  width={2000}
-                  height={2000}
-                  className="relative bottom-[-6rem] left-[4rem] w-[80%] "
-                  loading="lazy"
-                />
-              </motion.div>
-              {/* <p className="mb-10">Full Service and Exterior Treatment</p>
-          <p className="text-5xl font-bold text-2xl">
-            we love your car <br />
-            the same as you do
-          </p> */}
-              {/* <div className="relative bottom-[12rem] left-[2rem] pl-5 border-2 w-[20%]">Book an  appointment via call 
-            <p> +91 548xxxxxxx</p>
-            <p>Monday-Sunday: 8am - 6pm</p>
-          </div>*/}
-            </div>
-          </SwiperSlide>
-        </AnimatePresence>
-        <SwiperSlide>
-          <div className="relative h-full bg-cover z-1 sm:bg-left flex flex-col content-center justify-center items-center sm:text-xl text-lg uppercase text-center">
-            <Image
-              height={500}
-              width={500}
-              src="/images/carwash1.jpg" // Replace with the actual path to your image
-              alt="Car Wash"
-              loading="lazy"
-              className="absolute top-0 left-0 w-full h-full object-cover opacity-75"
-            />
-            <p className="sm:mb-10 relative bottom-2 ml-2 text-base sm:text-xl mb-2">
-              Full Service and Exterior Treatment
-            </p>
-            <p className="sm:text-5xl relative font-bold sm:mb-8 text-base bottom-3 text-[#404040]">
-              we love your car <br />
-              the same as you do
-            </p>
+              <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-4">
+                Welcome to CarLight
+              </h2>
+              <p className="text-sm sm:text-lg text-white/90 mb-6 sm:mb-8">
+                Premium hand car wash services
+              </p>
+              <Link href="/#booking">
+                <button className="px-6 sm:px-8 py-2 sm:py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
+                  Book Now
+                </button>
+              </Link>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="absolute bottom-0 right-0 w-48 h-48 sm:w-64 sm:h-64 opacity-80"
+            >
+              <Image
+                src="/images/bluecar.png"
+                alt="Blue Car"
+                width={400}
+                height={400}
+                className="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </motion.div>
           </div>
         </SwiperSlide>
+
+        {/* Slide 2: Exterior Treatment */}
         <SwiperSlide>
-          <div className="relative h-full bg-cover sm:bg-left bg-center flex flex-col content-center justify-center items-center sm:text-2xl text-xl uppercase text-center">
+          <div className="relative w-full h-full flex flex-col items-center justify-center text-center">
             <Image
-              height={500}
-              width={500}
-              src="/images/carwash2.jpg" // Replace with the actual path to your image
-              alt="Car Wash"
+              src="/images/carwash1.jpg"
+              alt="Full Service Car Wash"
+              fill
+              className="absolute inset-0 object-cover brightness-50"
               loading="lazy"
-              className="absolute top-0 left-0 w-full h-full object-cover opacity-75"
             />
-            <p className="sm:mb-10 relative bottom-2 ml-2 text-base sm:text-xl mb-2">
-              From express detail to full inside & out
-            </p>
-            <p className="sm:text-5xl relative font-bold sm:mb-8 text-base bottom-3  text-[#404040]">
-              Detailing Services <br />
-              with a personal touch
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="relative z-10 px-4 sm:px-8 max-w-2xl"
+            >
+              <p className="text-xs sm:text-base text-white/90 mb-2 sm:mb-4 uppercase tracking-wider">
+                Full Service & Exterior Treatment
+              </p>
+              <h2 className="text-xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                We Love Your Car<br />
+                <span className="text-blue-300">The Same As You Do</span>
+              </h2>
+              <Link href="/#services">
+                <button className="px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all">
+                  Learn More
+                </button>
+              </Link>
+            </motion.div>
           </div>
         </SwiperSlide>
+
+        {/* Slide 3: Detailing Services */}
         <SwiperSlide>
-          {/* <div className="  bg-[url('/images/carwash3.jpg')] opacity-75 h-full bg-cover sm:bg-left bg-top  flex flex-col content-center justify-center item-center    sm:text-2xl text-xl uppercase ">
-            <p className=" relative sm:top-[7rem] sm:left-20 sm:mb-5 top-[4rem] item-center ml-2 text-base sm:text-xl ">
-              welcome to <strong>car light</strong> a hand car wash{" "}
-            </p>
-            <p className=" relative sm:top-[7rem] sm:text-5xl sm:left-20  top-[4rem] ml-2 font-bold text-base mb-8">
-              your car is always <br />
-              great hand with us
-            </p>
-          </div> */}
-            <div className="  bg-cover opacity-75 h-full bg-cover sm:bg-left bg-top  flex flex-col content-center justify-center item-center    sm:text-2xl text-xl uppercase ">
+          <div className="relative w-full h-full flex flex-col items-center justify-center text-center">
             <Image
-              height={500}
-              width={500}
-              src="/images/carwash3.jpg" // Replace with the actual path to your image
-              alt="Car Wash"
+              src="/images/carwash2.jpg"
+              alt="Detailing Services"
+              fill
+              className="absolute inset-0 object-cover brightness-50"
               loading="lazy"
-              className="absolute top-0 left-0 w-full h-full object-cover "
             />
-
-            <p className=" relative sm:top-[7rem] sm:left-20 sm:mb-5 top-[4rem] item-center ml-2 text-base sm:text-xl ">
-              welcome to <strong>car light</strong> a hand car wash{" "}
-            </p>
-            <p className=" relative sm:top-[7rem] sm:text-5xl sm:left-20  top-[4rem] ml-2 font-bold text-base mb-8">
-              your car is always <br />
-              great hand with us
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="relative z-10 px-4 sm:px-8 max-w-2xl"
+            >
+              <p className="text-xs sm:text-base text-white/90 mb-2 sm:mb-4 uppercase tracking-wider">
+                Express Detail to Full Interior & Exterior
+              </p>
+              <h2 className="text-xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                Detailing Services<br />
+                <span className="text-blue-300">With A Personal Touch</span>
+              </h2>
+              <Link href="/#booking">
+                <button className="px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all">
+                  Book Detailing
+                </button>
+              </Link>
+            </motion.div>
           </div>
-
-
         </SwiperSlide>
+
+        {/* Slide 4: Hand Care Wash */}
         <SwiperSlide>
-          {/* <div className="bg-[url('/images/carwash4.jpg')] opacity-75 h-full bg-cover sm:bg-left bg-top  flex flex-col content-center justify-center items-center text-[#F8F8F8]  sm:text-2xl text-xl uppercase">
-            <p className="mb-10 text-base sm:text-xl">
-              A Quality service for you{" "}
-            </p>
-            <p className="sm:text-5xl font-bold text-center mb-8  text-base ">
-              we help keep <br />
-              your car clean
-            </p>
-          </div> */}
-
-          <div className="bg-cover  opacity-75 h-full bg-cover sm:bg-left bg-top  flex flex-col content-center justify-center items-center text-[#F8F8F8]  sm:text-2xl text-xl uppercase">
+          <div className="relative w-full h-full flex flex-col items-center justify-center text-center">
             <Image
-              height={500}
-              width={500}
-              src="/images/carwash4.jpg" // Replace with the actual path to your image
-              alt="Car Wash"
+              src="/images/carwash3.jpg"
+              alt="Hand Car Wash"
+              fill
+              className="absolute inset-0 object-cover brightness-50"
               loading="lazy"
-              className="absolute top-0 left-0 w-full h-full object-cover "
             />
-            <p className="sm:mb-10 relative bottom-2 ml-2 text-base sm:text-xl mb-2">
-              A Quality service for you{" "}
-            </p>
-            <p className="sm:text-5xl relative font-bold sm:mb-8 text-base bottom-3 text-center">
-              we help keep <br />
-              your car clean
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="relative z-10 px-4 sm:px-8 max-w-2xl"
+            >
+              <p className="text-xs sm:text-base text-white/90 mb-2 sm:mb-4 uppercase tracking-wider">
+                Welcome to CarLight
+              </p>
+              <h2 className="text-xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                Your Car Is Always<br />
+                <span className="text-blue-300">In Great Hands With Us</span>
+              </h2>
+              <Link href="/#contact">
+                <button className="px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all">
+                  Contact Us
+                </button>
+              </Link>
+            </motion.div>
           </div>
+        </SwiperSlide>
 
-       
+        {/* Slide 5: Quality Service */}
+        <SwiperSlide>
+          <div className="relative w-full h-full flex flex-col items-center justify-center text-center">
+            <Image
+              src="/images/carwash4.jpg"
+              alt="Quality Car Wash"
+              fill
+              className="absolute inset-0 object-cover brightness-50"
+              loading="lazy"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="relative z-10 px-4 sm:px-8 max-w-2xl"
+            >
+              <p className="text-xs sm:text-base text-white/90 mb-2 sm:mb-4 uppercase tracking-wider">
+                A Quality Service For You
+              </p>
+              <h2 className="text-xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                We Help Keep<br />
+                <span className="text-blue-300">Your Car Clean</span>
+              </h2>
+              <Link href="/#services">
+                <button className="px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all">
+                  View Services
+                </button>
+              </Link>
+            </motion.div>
+          </div>
         </SwiperSlide>
       </Swiper>
     </div>
