@@ -141,19 +141,20 @@ public class BillServiceImpl implements BillService {
             packagePrice = outletPackage.getPrice();
         } else {
             // ✅ Fast billing: auto-lookup the manual/free package (price ₹0)
-            outletPackage = outletPackageRepository.findByOutlet_IdAndWashPackage_NameAndCarType(
+            // If not found, proceed with null package — manualAmount drives the total
+            var manualPkg = outletPackageRepository.findByOutlet_IdAndWashPackage_NameAndCarType(
                     outlet.getId(),
                     "MANUAL / FAST BILLING",
                     car.getCarType()
-            ).orElseThrow(() -> new RuntimeException(
-                    "Manual billing package not found for outlet: " + outlet.getId() + " car type: " + car.getCarType()
-            ));
-
-            if (!Boolean.TRUE.equals(outletPackage.getActive())) {
-                throw new RuntimeException("Outlet package inactive");
+            );
+            if (manualPkg.isPresent()) {
+                outletPackage = manualPkg.get();
+                if (!Boolean.TRUE.equals(outletPackage.getActive())) {
+                    throw new RuntimeException("Outlet package inactive");
+                }
+                packagePrice = outletPackage.getPrice(); // 0.0
             }
-
-            packagePrice = outletPackage.getPrice(); // 0.0
+            // else: outletPackage stays null, packagePrice stays 0.0 — manualAmount is the total
         }
 
         // ✅ extras
