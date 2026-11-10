@@ -149,7 +149,9 @@ export function generateInvoicePDF(bill) {
   y += 8;
 
   const items = [];
-  items.push({ desc: `Car Wash — ${bill.packageName || 'Package'}`, amt: bill.packagePrice || 0 });
+  // For fast/manual billing, packagePrice is 0 but totalAmount holds the manual amount
+  const carWashAmt = (bill.packagePrice || 0) > 0 ? (bill.packagePrice || 0) : (Number(bill.totalAmount) || 0);
+  items.push({ desc: `Car Wash — ${bill.packageName || 'Package'}`, amt: carWashAmt });
   (bill.extras || []).forEach(x => items.push({ desc: `Extra: ${x.name}`, amt: x.price }));
   (bill.additionalCharges || []).forEach(c => items.push({ desc: c.title, amt: c.amount }));
 

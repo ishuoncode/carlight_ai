@@ -34,12 +34,13 @@ public class Bill extends BaseEntity {
     private Car car;
 
     @ManyToOne
-    @JoinColumn(name = "outlet_package_id", nullable = false)
+    @JoinColumn(name = "outlet_package_id", nullable = true)
     private OutletPackage outletPackage;
 
 
-    @Column(nullable=false)
-    private Double packagePriceSnapshot;
+    @Builder.Default
+    @Column(nullable = true)
+    private Double packagePriceSnapshot = 0.0;
 
     @Builder.Default
     @Column(nullable=false)

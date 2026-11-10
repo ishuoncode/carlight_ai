@@ -24,4 +24,10 @@ public interface OutletPackageRepository extends JpaRepository<OutletPackage, Lo
 
     List<OutletPackage> findByOutlet_IdOrderByWashPackage_NameAscCarTypeAsc(Long outletId);
 
+    // ✅ find manual/free package for fast billing
+    Optional<OutletPackage> findByOutlet_IdAndWashPackage_NameAndCarType(
+            Long outletId,
+            String washPackageName,
+            CarType carType
+    );
 }

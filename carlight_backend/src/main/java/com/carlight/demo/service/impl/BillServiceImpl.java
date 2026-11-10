@@ -122,17 +122,38 @@ public class BillServiceImpl implements BillService {
             throw new RuntimeException("This car does not belong to this customer");
         }
 
-        // ✅ outlet package pricing row
-        OutletPackage outletPackage = outletPackageRepository.findById(request.getOutletPackageId())
-                .orElseThrow(() -> new RuntimeException("Outlet package not found"));
+        // ✅ outlet package pricing row (optional — null for fast/manual-amount billing)
+        OutletPackage outletPackage = null;
+        double packagePrice = 0.0;
+        if (request.getOutletPackageId() != null) {
+            outletPackage = outletPackageRepository.findById(request.getOutletPackageId())
+                    .orElseThrow(() -> new RuntimeException("Outlet package not found"));
 
-        // ✅ validate outlet package belongs to outlet
-        if (!outletPackage.getOutlet().getId().equals(outlet.getId())) {
-            throw new RuntimeException("Outlet package does not belong to outlet");
-        }
+            // ✅ validate outlet package belongs to outlet
+            if (!outletPackage.getOutlet().getId().equals(outlet.getId())) {
+                throw new RuntimeException("Outlet package does not belong to outlet");
+            }
 
-        if (!Boolean.TRUE.equals(outletPackage.getActive())) {
-            throw new RuntimeException("Outlet package inactive");
+            if (!Boolean.TRUE.equals(outletPackage.getActive())) {
+                throw new RuntimeException("Outlet package inactive");
+            }
+
+            packagePrice = outletPackage.getPrice();
+        } else {
+            // ✅ Fast billing: auto-lookup the manual/free package (price ₹0)
+            outletPackage = outletPackageRepository.findByOutlet_IdAndWashPackage_NameAndCarType(
+                    outlet.getId(),
+                    "MANUAL / FAST BILLING",
+                    car.getCarType()
+            ).orElseThrow(() -> new RuntimeException(
+                    "Manual billing package not found for outlet: " + outlet.getId() + " car type: " + car.getCarType()
+            ));
+
+            if (!Boolean.TRUE.equals(outletPackage.getActive())) {
+                throw new RuntimeException("Outlet package inactive");
+            }
+
+            packagePrice = outletPackage.getPrice(); // 0.0
         }
 
         // ✅ extras
@@ -141,7 +162,6 @@ public class BillServiceImpl implements BillService {
             extras = extraRepository.findAllById(request.getExtraIds());
         }
 
-        double packagePrice = outletPackage.getPrice();
         double extrasTotal = extras.stream().mapToDouble(Extra::getPrice).sum();
 
         // ✅ additional charges
@@ -164,7 +184,12 @@ public class BillServiceImpl implements BillService {
         }
 
         // ✅ total before discount
-        double totalBeforeDiscount = packagePrice + extrasTotal + chargesTotal;
+        // When manualAmount is provided (fast billing), it is the base total regardless of package.
+        // Otherwise fall back to the package price (normal package billing).
+        double baseAmount = (request.getManualAmount() != null)
+                ? request.getManualAmount()
+                : packagePrice;
+        double totalBeforeDiscount = baseAmount + extrasTotal + chargesTotal;
 
         // ✅ manual discount
         double manualDiscount = request.getDiscount() != null ? request.getDiscount() : 0.0;
@@ -322,7 +347,9 @@ public class BillServiceImpl implements BillService {
                 .outletId(bill.getOutlet().getId())
                 .outletName(bill.getOutlet().getName())
 
-                .packageName(bill.getOutletPackage().getWashPackage().getName())
+                .packageName(bill.getOutletPackage() != null && bill.getOutletPackage().getWashPackage() != null
+                        ? bill.getOutletPackage().getWashPackage().getName()
+                        : null)
                 .packagePrice(bill.getPackagePriceSnapshot())
 
                 .extras(extras)

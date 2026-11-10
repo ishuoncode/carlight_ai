@@ -20,8 +20,7 @@ public class BillCreateRequest {
     @NotNull
     private Long carId;
 
-    @NotNull
-    private Long outletPackageId;
+    private Long outletPackageId; // optional — null for fast/manual-amount billing
 
     private Double discount;
 
@@ -35,6 +34,9 @@ public class BillCreateRequest {
     private Long couponId;
 
     private List<AdditionalChargeRequest> additionalCharges;
+
+    // ✅ manual amount used as the bill total for fast billing (no package price added)
+    private Double manualAmount;
 
     @Data
     public static class AdditionalChargeRequest {

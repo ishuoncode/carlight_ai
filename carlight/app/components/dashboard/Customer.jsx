@@ -97,7 +97,9 @@ const Customer = () => {
     const extrasTotal = (bill.extras || []).reduce((sum, extra) => sum + (extra.price || 0), 0);
     const additionalChargesTotal = (bill.additionalCharges || []).reduce((sum, charge) => sum + (charge.amount || 0), 0);
 
-    return packagePrice + extrasTotal + additionalChargesTotal;
+    const computed = packagePrice + extrasTotal + additionalChargesTotal;
+    // For fast/manual billing, package price is 0 but totalAmount holds the manual amount entered
+    return computed > 0 ? computed : (bill.totalAmount || 0);
   };
 
   const formatLastVisit = (createdAt) => {
