@@ -1619,7 +1619,7 @@ const Billing = () => {
                         {carNumberQuery && !carFound && carSuggestions.length === 0 && (
                           <small className="text-amber-600 block flex items-center gap-1">
                             <i className="pi pi-info-circle"></i>
-                            No match in records — press Enter or click "New Vehicle" to register it
+                            No match in records — press Enter or click &quot;New Vehicle&quot; to register it
                           </small>
                         )}
                       </div>
@@ -1848,7 +1848,7 @@ const Billing = () => {
                         {fastCarNumberQuery && !carFound && fastCarSuggestions.length === 0 && (
                           <small className="text-amber-600 block flex items-center gap-1">
                             <i className="pi pi-info-circle"></i>
-                            No match in records — press Enter or click "New Vehicle" to register it
+                            No match in records — press Enter or click &quot;New Vehicle&quot; to register it
                           </small>
                         )}
                       </div>
