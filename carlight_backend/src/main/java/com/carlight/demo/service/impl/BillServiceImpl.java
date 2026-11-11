@@ -350,7 +350,7 @@ public class BillServiceImpl implements BillService {
 
                 .packageName(bill.getOutletPackage() != null && bill.getOutletPackage().getWashPackage() != null
                         ? bill.getOutletPackage().getWashPackage().getName()
-                        : null)
+                        : "Manual Billing")
                 .packagePrice(bill.getPackagePriceSnapshot())
 
                 .extras(extras)

@@ -49,11 +49,18 @@ const Analytics = () => {
     try {
       const cachedOutlets = localStorage.getItem('outlets');
       if (cachedOutlets) {
-        const parsed = JSON.parse(cachedOutlets);
-        setOutlets(parsed.map(o => ({ label: o.name, value: o.id })));
-        return;
+        try {
+          const parsed = JSON.parse(cachedOutlets);
+          // Validate that cached data has the expected format (array with objects having name/id)
+          if (Array.isArray(parsed)) {
+            setOutlets(parsed.map(o => ({ label: o.name, value: o.id })));
+            return;
+          }
+        } catch (e) {
+          // Invalid JSON or unexpected format, fall through to fetch
+        }
       }
-      const response = await fetch(`${API_BASE_URL}/api/shop`, { headers: authHeaders() });
+      const response = await fetch(`${API_BASE_URL}/api/outlets`, { headers: authHeaders() });
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('outlets', JSON.stringify(data));
